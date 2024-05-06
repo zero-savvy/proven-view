@@ -1,63 +1,21 @@
+# This code converts video file to its frames and save the selected range of them (start-end).
 import os
-import cv2
 import json
-import numpy as np
-from PIL import Image
-import ffmpeg
+
 import tkinter as tk
 from tkinter import filedialog
 
-
-# def get_video_path():
-#     root = tk.Tk()
-#     root.withdraw()
-#     file_path = filedialog.askopenfilename()
-#     return file_path
-
-# image_path = get_video_path()
-# input_file = ffmpeg.input(image_path)
-# output_file = ffmpeg.output(input_file.trim(start_frame=80, end_frame=90), 'output.mp4')
-# ffmpeg.run(output_file)
-# vidcap = cv2.VideoCapture('output.mp4')
-# success,image = vidcap.read()
-# count = 0
-# while success:
-#   cv2.imwrite("frame%d.jpg" % count, image)     # save frame as JPEG file      
-#   success,image = vidcap.read()
-#   print('Read a new frame: ', success)
-#   count += 1
+import cv2
+import numpy as np
+from PIL import Image
 
 
-# Function to extract frames from a video until reaching the desired frame count
-# def extract_frames(video_file):
-#     cap = cv2.VideoCapture(video_file)
-    
-#     frame_rate = 1  # Desired frame rate (1 frame every 0.5 seconds)
-#     frame_count = 0
-    
-#     # Get the video file's name without extension
-#     video_name = os.path.splitext(os.path.basename(video_file))[0]
-    
-    # Create an output folder with a name corresponding to the video
-    # output_directory = f"{video_name}_frames"
-    # os.makedirs(output_directory, exist_ok=True)
-    
-    # while True:
-    #     ret, frame = cap.read()
-        
-    #     if not ret:
-    #         break
-        
-    #     frame_count += 1
-        
-    #     # Only extract frames at the desired frame rate
-    #     if frame_count % int(cap.get(5) / frame_rate) == 0:
-    #         output_file = f"{output_directory}/frame_{frame_count}.jpg"
-    #         cv2.imwrite(output_file, frame)
-    #         print(f"Frame {frame_count} has been extracted and saved as {output_file}")
-    
-    # cap.release()
-    # cv2.destroyAllWindows()
+
+def get_video_path():
+    root = tk.Tk()
+    root.withdraw()
+    file_path = filedialog.askopenfilename()
+    return file_path
 
 def compress_image(image_path):
     with Image.open(image_path) as image:
@@ -125,12 +83,13 @@ def extract_frames(video_path, start_frame, end_frame, output_path):
     video_capture.release()
 
 if __name__ == "__main__":
-    video_file = r"SampleVideo_1280x720_1mb.mp4"  # Replace with your video's name
-    print('start')
-    end_frame = 102
-    start_frame = 100
+    # video_file = r"SampleVideo_1280x720_1mb.mp4"  # Replace with your video's name
+    image_path = get_video_path()
+    print('start ...')
+    start_frame = int(input("Enter start frame (this frame will include): ") or "0")
+    end_frame = int(input("Enter end frame (this frame will include): ") or "1")
     output_path = "out_frames"
-    extract_frames(video_file, start_frame, end_frame, output_path)
+    extract_frames(image_path, start_frame, end_frame, output_path)
     compressed_out = []
     current_directory = os.getcwd()
     # Crop the image and save it
