@@ -88,20 +88,25 @@ if __name__ == "__main__":
     print('start ...')
     start_frame = int(input("Enter start frame (this frame will include): ") or "0")
     end_frame = int(input("Enter end frame (this frame will include): ") or "1")
+    resolution = int(input("For HD, enter 0, for FHD, enter 1: ") or "0")
+    height = 720 if resolution == 0 else 1080
     output_path = "out_frames"
     extract_frames(image_path, start_frame, end_frame, output_path)
     compressed_out = []
     current_directory = os.getcwd()
     # Crop the image and save it
-    for i in range(end_frame-start_frame):
+    for i in range(end_frame-start_frame+1):
         relative_image_path = output_path + f"/frame_{i}.jpg"
         image_path = os.path.join(current_directory, relative_image_path)
         with Image.open(image_path) as image:
             compressed_original_image = compress(image)
             compressed_out.append(compressed_original_image)
+            os.unlink(image_path)
         # compressed_original_image = compress_image(output_path)
     out = {
-        "original": compressed_out,
+        "trimmed": compressed_out,
+        "height": height,
+        "frames": end_frame - start_frame + 1,
     }
     print("Image compressed successfully.")
     with open(f"{output_path}/output_file.json", 'w') as fp:
