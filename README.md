@@ -14,7 +14,12 @@ To achieve this, the first thing is to "_commit_" to the original source. **Figu
 In the proposed scheme, the camera (whether it is a C2PA-compatible DSLR or a mobile phone application) creates the presented Merkle tree in **Figure 1** by executing following steps:
 1. **Calculate hash of each individual frame**: For this step, we employ standard image hashing algorithms ([Library](https://github.com/JohannesBuchner/imagehash)), such [pHash](https://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html) or [aHash](https://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html) that are significantly faster than secure cryptographic hash algorithms like SHA3 or Pseidon. Note that we cannot expect any recording device to crazily calculate a SHA3 hash of every frame in a video. To give you an insight, the amount of SHA3 hashes required for low resolution (SD) video with the length of only 2 minutes and a frame rate of only 30 FPS, exeeds 100 Million hashes 💀🙃.
 2. **Calculate Continous hashes of frames**: We want to make sure that the sequnece of frames is indeed unique and not malformed. So, we need to "_chain_" the frames together, just like what we have in any blockchain structure 🙂. The last hash result is unique to the original video and will be signed by the Camera.
-3. **Calculate Merkle tree**: In order to "_prove_" that we have trimmed a part of an original video, we . . . .
+3. **Calculate Merkle tree**: In order to "_prove_" that we have trimmed a part of an original video, we need to prove two things:
+    1) The _end_ and _start_ frames of the trimmed version are from the original video.
+    2) All of the frames between the start and end frames are kept as they were, i.e. the sequence of the frames is not changed in any way.
+
+      While the second statement in the above can be proven by caclulating the continous hash of the frames, the first statement requires the ability of proving inclusion of any two frames in the original video. To achieve this, we generate a Merkle tree from the hash values of all the frames during the commintment. The Merkle root is then signed by the _Camera_. Now, it is possible to prove that the stsart and end frames of the trimmed video actually belong to the original video by providing two merkle proofs one for each 😃.
+4. **Signature generation**: The camera signs The Merkle root calculated in the step 3. 
 
 
 ![General Overview](docs/merkle.png "General Overview")
