@@ -21,7 +21,7 @@ In the proposed scheme, the camera (whether it is a C2PA-compatible DSLR or a mo
     1) The _end_ and _start_ frames of the trimmed version are from the original video.
     2) All of the frames between the start and end frames are kept as they were (the sequence of the frames is not changed in any way, and the contents of frames didn't change).
 
-      While the second statement in the above can be proven by caclulating the continous hash of the frames, the first statement requires the ability of proving inclusion of any two frames in the original video. To achieve this, we generate a Merkle tree from the hash values of all the frames during the commintment. The Merkle root is then signed by the _Camera_. Now, it is possible to prove that the stsart and end frames of the trimmed video actually belong to the original video by providing two merkle proofs one for each 😃.
+      While the second statement in the above can be proven by calculating the continuous hash of the frames, the first statement requires the ability of proving inclusion of any two frames in the original video. To achieve this, we generate a Merkle tree from the hash values of all the frames during the commitment. The Merkle root is then signed by the _Camera_. Now, it is possible to prove that the start and end frames of the trimmed video actually belong to the original video by providing two Merkle proofs one for each 😃.
 4. **Signature generation**: The camera signs The Merkle root calculated in the step 3. 
 This signature will act as the final commitment to the video.
 
