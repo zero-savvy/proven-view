@@ -105,7 +105,7 @@ if __name__ == "__main__":
     
     # Crop the image and save it
     general_json = {
-        "height": height,
+        # "height": height,
         "frames": total_frames,
     }
     with open(f"{output_path}/general.json", 'w') as fp:
