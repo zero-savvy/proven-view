@@ -62,12 +62,20 @@ template CompressorGrey(size){
 
 template GrayScaleHash(width, height){
 
+    // public inputs
+    signal input step_in;
+
     signal input orig[height][width][3];
-    signal output hash_out;
+    // signal output hash_out;
     signal gray_input [height][width];
+
+    //outputs
+    signal output step_out;
 
     // grayscale code here ...
     component grayscale[height];
+
+    signal prev_hash <== step_in;
 
     for (var i = 0; i< height; i++){
         grayscale[i] = GrayScale(width);
@@ -87,8 +95,6 @@ template GrayScaleHash(width, height){
     component resize4 = Resize(80, 60);
     resize4.in <== resize3.out;
 
-    // component resize5 = Resize(40, 30);
-    // resize5.in <== resize4.out;
 
     component compressor[40];
     for (var i=0; i < 40; i++) {
@@ -102,16 +108,20 @@ template GrayScaleHash(width, height){
     component hasher[39];
 
     for(var i=0; i < 39; i++) {
-    hasher[i] = Poseidon(2);
-    hasher[i].inputs[0] <== i == 0 ? compressor[0].out : hasher[i-1].out;
-    hasher[i].inputs[1] <== compressor[i+1].out;
+        hasher[i] = Poseidon(2);
+        hasher[i].inputs[0] <== i == 0 ? compressor[0].out : hasher[i-1].out;
+        hasher[i].inputs[1] <== compressor[i+1].out;
     }
+    component final_hash = Poseidon(2);
+    final_hash.inputs[0] <== prev_hash;
+    final_hash.inputs[1] <== hasher[38].out;
+    step_out <== final_hash.out;
 
-    hash_out <== hasher[38].out;
+
 }
 
 
-component main = GrayScaleHash(640, 480);
+component main {public [step_in]}  = GrayScaleHash(640, 480);
 
 
 
