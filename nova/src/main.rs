@@ -54,7 +54,6 @@ fn fold_fold_fold(selected_function: String,
     if selected_function == "trim" {
        
         start_public_input.push(F::<G1>::from(0));
-        start_public_input.push(F::<G1>::from(0));
         // start_public_input.push(F::<G1>::from(input_data.info));  // x|y|index
         for i in 0..iteration_count {
 
