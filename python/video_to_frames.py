@@ -9,6 +9,8 @@ import cv2
 import numpy as np
 from PIL import Image
 
+from convert_to_sd import convert_to_sd
+
 
 
 def get_video_path():
@@ -17,11 +19,11 @@ def get_video_path():
     file_path = filedialog.askopenfilename()
     return file_path
 
-def compress_image(image_path):
-    with Image.open(image_path) as image:
-        return compress(image)
+# def compress_image(image_path):
+#     with Image.open(image_path) as image:
+#         return compress(image)
 
-def compress(image_in):
+def pixel_to_array(image_in):
     array_in = np.array(image_in).tolist()
     output_array = []
     # print(len(array_in), len(array_in[0]), len(array_in[0][0]))
@@ -30,14 +32,13 @@ def compress(image_in):
         row = []
         hexValue = ''
         for j in range(0, len(array_in[i])):
-            if np.isscalar(array_in[i][j]):
-                hexValue = hex(int(array_in[i][j]))[2:].zfill(6) + hexValue
-            else:
-                for k in range(0, 3):
-                    hexValue = hex(int(array_in[i][j][k]))[2:].zfill(2) + hexValue
-            if j % 10 == 9:
-                row.append("0x" + hexValue)
-                hexValue = ''
+            # if np.isscalar(array_in[i][j]):
+            #     hexValue = hex(int(array_in[i][j]))[2:].zfill(6) + hexValue
+            # else:
+            #     for k in range(0, 3):
+            #         hexValue = hex(int(array_in[i][j][k]))[2:].zfill(2) + hexValue
+            # if j % 2 == 1:
+            row.append(["0x" + hex(int(array_in[i][j][k]))[2:].zfill(2) for k in range(0, 3)])
         output_array.append(row)
     return output_array
 
@@ -84,31 +85,43 @@ def extract_frames(video_path, start_frame, end_frame, output_path):
 
 if __name__ == "__main__":
     # video_file = r"SampleVideo_1280x720_1mb.mp4"  # Replace with your video's name
-    image_path = get_video_path()
+    video_path = get_video_path()
     print('start ...')
-    start_frame = int(input("Enter start frame (this frame will include): ") or "0")
-    end_frame = int(input("Enter end frame (this frame will include): ") or "1")
-    resolution = int(input("For HD, enter 0, for FHD, enter 1: ") or "0")
-    height = 720 if resolution == 0 else 1080
+    start_time = int(input("Enter start frame (this frame will include): ") or "0")
+    end_time = int(input("Enter end frame (this frame will include): ") or "1")
+    resolution = int(input("Proving Resolution: 1) SD, 2) HD, 3) FHD: ") or "1")
+    height = 480 if resolution == 1 else (720 if resolution == 1 else 1080)
     output_path = "out_frames"
-    extract_frames(image_path, start_frame, end_frame, output_path)
+    output_video = 'resized_video.mp4'
+    fps = convert_to_sd(video_path, output_video, start_time, end_time, 30)
+    start_frame = int(start_time * fps)
+    end_frame = int(end_time * fps)
+    extract_frames(video_path, start_frame, end_frame, output_path)
     compressed_out = []
     current_directory = os.getcwd()
+    
     # Crop the image and save it
-    for i in range(end_frame-start_frame+1):
-        relative_image_path = output_path + f"/frame_{i}.jpg"
-        image_path = os.path.join(current_directory, relative_image_path)
-        with Image.open(image_path) as image:
-            compressed_original_image = compress(image)
-            compressed_out.append(compressed_original_image)
-            os.unlink(image_path)
-        # compressed_original_image = compress_image(output_path)
-    out = {
-        "trimmed": compressed_out,
+    general_json = {
         "height": height,
         "frames": end_frame - start_frame + 1,
     }
-    print("Image compressed successfully.")
-    with open(f"{output_path}/output_file.json", 'w') as fp:
-        json.dump(out, fp, indent=4)
+    with open(f"{output_path}/general.json", 'w') as fp:
+        json.dump(general_json, fp, indent=4)
 
+    for i in range(end_frame-start_frame+1):
+        relative_image_path = output_path + f"/frame_{i}.jpg"
+        relative_json_path = output_path + f"/frame_{i}.json"
+        image_path = os.path.join(current_directory, relative_image_path)
+        with Image.open(image_path) as image:
+            compressed_original_image = pixel_to_array(image)
+            compressed_out.append(compressed_original_image)
+            frame_data = {
+                "orig": compressed_out,
+            }
+            with open(relative_json_path, 'w') as fp:
+                json.dump(frame_data, fp, indent=4)
+            os.unlink(image_path)
+            compressed_out = []
+        # compressed_original_image = compress_image(output_path)
+    print("Generated inputs for Nova successfully at directory: ./", output_path + "/")
+    
