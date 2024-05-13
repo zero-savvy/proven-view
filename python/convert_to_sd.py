@@ -78,7 +78,7 @@ def convert_to_sd(input_video_path, output_video_path, start_time, end_time, tar
 
     os.remove(temp_path)
 
-    return resized_clip.fps
+    return sum(1 for dummy in resized_clip.iter_frames())
 
 if __name__ == "__main__":
     # Example usage

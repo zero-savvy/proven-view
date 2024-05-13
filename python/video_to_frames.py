@@ -1,5 +1,6 @@
 # This code converts video file to its frames and save the selected range of them (start-end).
 import os
+import shutil
 import json
 
 import tkinter as tk
@@ -50,14 +51,18 @@ def extract_frames(video_path, start_frame, end_frame, output_path):
     
     # Get total number of frames in the video
     total_frames = int(video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    print (start_frame, total_frames, end_frame, total_frames)
     
     # Check if the start and end frames are within the total number of frames
-    if start_frame >= total_frames or end_frame >= total_frames:
+    if start_frame > total_frames or end_frame > total_frames:
         print("Start or end frame exceeds total number of frames.")
         return
     
-    if not os.path.exists(output_path):
-        os.makedirs(output_path)
+    if os.path.exists(output_path):
+        shutil.rmtree(output_path)
+    
+    os.makedirs(output_path)
 
     # Set the start frame
     video_capture.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
@@ -93,35 +98,30 @@ if __name__ == "__main__":
     height = 480 if resolution == 1 else (720 if resolution == 1 else 1080)
     output_path = "out_frames"
     output_video = 'resized_video.mp4'
-    fps = convert_to_sd(video_path, output_video, start_time, end_time, 30)
-    start_frame = int(start_time * fps)
-    end_frame = int(end_time * fps)
-    extract_frames(video_path, start_frame, end_frame, output_path)
+    total_frames = convert_to_sd(video_path, output_video, start_time, end_time, 30)
+    extract_frames(output_video, 0, total_frames, output_path)
     compressed_out = []
     current_directory = os.getcwd()
     
     # Crop the image and save it
     general_json = {
         "height": height,
-        "frames": end_frame - start_frame + 1,
+        "frames": total_frames,
     }
     with open(f"{output_path}/general.json", 'w') as fp:
         json.dump(general_json, fp, indent=4)
 
-    for i in range(end_frame-start_frame+1):
+    for i in range(total_frames):
         relative_image_path = output_path + f"/frame_{i}.jpg"
         relative_json_path = output_path + f"/frame_{i}.json"
         image_path = os.path.join(current_directory, relative_image_path)
         with Image.open(image_path) as image:
-            compressed_original_image = pixel_to_array(image)
-            compressed_out.append(compressed_original_image)
             frame_data = {
-                "orig": compressed_out,
+                "orig": pixel_to_array(image),
             }
             with open(relative_json_path, 'w') as fp:
                 json.dump(frame_data, fp, indent=4)
             os.unlink(image_path)
-            compressed_out = []
         # compressed_original_image = compress_image(output_path)
-    print("Generated inputs for Nova successfully at directory: ./", output_path + "/")
+    print("Generated inputs for Nova successfully at directory: ./" + output_path + "/")
     
