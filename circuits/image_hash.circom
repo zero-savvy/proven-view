@@ -116,7 +116,7 @@ template GrayScaleHash(width, height){
     final_hash.inputs[0] <== prev_hash;
     final_hash.inputs[1] <== hasher[38].out;
     step_out <== final_hash.out;
-
+    log(step_out);
 
 }
 

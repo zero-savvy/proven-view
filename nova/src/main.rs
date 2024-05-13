@@ -9,17 +9,21 @@ use serde::Deserialize;
 use serde_json::json;
 
 #[derive(Deserialize)]
-struct ZKVidInput {
-    trimmed: Vec<Vec<String>>,
-    height: usize,
+struct GeneralInput {
+    // height: usize,
     frames: usize,
+}
+
+#[derive(Deserialize)]
+struct FrameInput {
+    orig: Vec<Vec<Vec<String>>>,
 }
 
 fn fold_fold_fold(selected_function: String,
             circuit_filepath: String,
             witness_gen_filepath: String,
             output_file_path: String,
-            input_file_path: String
+            input_folder_path: String
         ) {
     type G1 = pasta_curves::pallas::Point;
     type G2 = pasta_curves::vesta::Point;
@@ -36,27 +40,39 @@ fn fold_fold_fold(selected_function: String,
     let r1cs = load_r1cs::<G1, G2>(&FileLocation::PathBuf(circuit_file));
     let witness_generator_file = root.join(witness_gen_filepath);
 
-    let mut input_file = File::open(input_file_path.clone()).expect("Failed to open the file");
-    let mut input_file_json_string = String::new();
-    input_file.read_to_string(&mut input_file_json_string).expect("Unable to read from the file");
-    
     let mut private_inputs = Vec::new();
     let mut start_public_input: Vec<F::<G1>> = Vec::new();
 
     
+    let mut input_file = File::open(input_folder_path.clone()+ ("/general.json")).expect("Failed to open the file");
+    let mut input_file_json_string = String::new();
+    input_file.read_to_string(&mut input_file_json_string).expect("Unable to read from the file");
+
+    let input_data: GeneralInput = serde_json::from_str(&input_file_json_string).expect("Deserialization failed");
+    let iteration_count = input_data.frames;
+
     if selected_function == "trim" {
-        let input_data: ZKVidInput = serde_json::from_str(&input_file_json_string).expect("Deserialization failed");
-        let mut iteration_count = input_data.height * input_data.frames;
+       
         start_public_input.push(F::<G1>::from(0));
         start_public_input.push(F::<G1>::from(0));
         // start_public_input.push(F::<G1>::from(input_data.info));  // x|y|index
         for i in 0..iteration_count {
+
+            let mut input_file = File::open(input_folder_path.clone() + "/frame_" + i.to_string().as_str() + ".json").expect("Failed to open the file");
+            let mut input_file_json_string = String::new();
+            input_file.read_to_string(&mut input_file_json_string).expect("Unable to read from the file");
+
+            let input_data: FrameInput = serde_json::from_str(&input_file_json_string).expect("Deserialization failed");
+
             let mut private_input = HashMap::new();
-            private_input.insert("row_orig".to_string(), json!(input_data.trimmed[i]));
+            private_input.insert("orig".to_string(), json!(input_data.orig));
             private_inputs.push(private_input);
         }
     } else {
-        Err("given function is not implemented yet :)");
+        // Err("given function is not implemented yet :)");
+        println!(
+            "given function is not implemented yet :)"
+        );
     }
     
     // let reader = BufReader::new(file);
@@ -230,17 +246,16 @@ fn main() {
 
     println!(" ________________________________________________________");
     println!(" ____                          __     ___               ");
-    println!("|  _ \ _ __ _____   _____ _ __ \ \   / (_) _____      __");
-    println!("| |_) | '__/ _ \ \ / / _ \ '_ \ \ \ / /| |/ _ \ \ /\ / /");
-    println!("|  __/| | | (_) \ V /  __/ | | | \ V / | |  __/\ V  V / ");
-    println!("|_|   |_|  \___/ \_/ \___|_| |_|  \_/  |_|\___| \_/\_/  ");
+    println!("|  _ \\ _ __ _____   _____ _ __ \\ \\   / (_) _____      __");
+    println!("| |_) | '__/ _ \\ \\ / / _ \\ '_ \\ \\ \\ / /| |/ _ \\ \\ /\\ / /");
+    println!("|  __/| | | (_) \\ V /  __/ | | | \\ V / | |  __/\\ V  V / ");
+    println!("|_|   |_|  \\___/ \\_/ \\___|_| |_|  \\_/  |_|\\___| \\_/\\_/  ");
     println!(" ________________________________________________________");
     println!("| Input file: {}", input_filepath);
     println!("| Ouput file: {}", output_filepath);
     println!("| Selected function: {}", selected_function);
     println!("| Circuit file: {}", circuit_filepath);
     println!("| Witness generator: {}", witness_gen_filepath);
-    println!("| Image resolution: {}", resolution);
     println!(" ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾");
 
 
