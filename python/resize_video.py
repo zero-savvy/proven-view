@@ -1,5 +1,6 @@
 # This code converts videos with every resolution to SD, and resize the video with your target fps.
 import os
+import json
 
 import tkinter as tk
 from tkinter import filedialog
@@ -60,6 +61,21 @@ def plot_images_side_by_side_auto_size(np_image1, np_image2):
     plt.show()
 
 
+def compress(array_in):
+    
+    output_array = []
+    # print(len(array_in), len(array_in[0]), len(array_in[0][0]))
+    for frame in array_in:
+        frame_array = []
+        for i in range(0, len(frame)):
+            hexValue = ''
+            for j in range(0, len(frame[i])):
+                hexValue = hex(int(frame[i][j]))[2:].zfill(2) + hexValue
+            frame_array.append(hexValue)
+        output_array.append(frame_array)
+    return output_array
+
+
 def resize_frame(frame):
     # Resize the frame to the new dimensions
     # sd_frame = np.array(frame)
@@ -112,6 +128,8 @@ def resize_video(np_array, output_video_path, fps):
 
     # Write the video to a file
     video_clip.write_videofile(output_video_path, codec='libx264')   # Create a video clip from the processed frames
+
+    return processed_frames
 
 
 def grayscale_video(input_video_path, output_video_path):
@@ -211,10 +229,10 @@ if __name__ == "__main__":
     convert_to_sd(video_path, output_video, 30)             # 640 * 480
     tmp, fps = grayscale_video(output_video, "gray_out.mp4")
 
-    resize_video(tmp, "resized_out.mp4", fps)           # 320 * 240
-    # resize_video("resized_out.mp4", "resized_out2.mp4")     # 160 * 120
-    # resize_video("resized_out2.mp4", "resized_out3.mp4")    # 80 * 60
-    # resize_video("resized_out3.mp4", "resized_out4.mp4")    # 40 * 30
+    frames = resize_video(tmp, "resized_out.mp4", fps)
+    out = compress(frames)
+    with open("outputs.json", 'w') as fp:
+        json.dump(out, fp, indent=4)
 
 
 
