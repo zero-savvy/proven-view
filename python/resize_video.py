@@ -7,7 +7,9 @@ from tkinter import filedialog
 import numpy as np
 import ffmpeg
 import cv2
-from moviepy.editor import VideoFileClip, VideoClip
+from moviepy.editor import VideoFileClip, VideoClip, ImageSequenceClip
+import moviepy
+from PIL import Image
 
 import matplotlib.pyplot as plt
 
@@ -58,89 +60,84 @@ def plot_images_side_by_side_auto_size(np_image1, np_image2):
     plt.show()
 
 
-def resize_frame(frame, _width, _height):
+def resize_frame(frame):
     # Resize the frame to the new dimensions
-    sd_frame = np.array(frame)
-    height, width = sd_frame.shape
+    # sd_frame = np.array(frame)
+    # height, width = sd_frame.shape
     # print('channels: ', channels)
     # Initialize the new image array
+    k = 16
+    _width, _height = int(len(frame[0])/k), int(len(frame)/k)
     new_img_array = np.zeros((_height, _width), dtype=np.uint8)
 
     # Perform bilinear interpolation
     for i in range(int(_height)):
         for j in range(int(_width)):
-            a = sd_frame[i*2, j*2]
-            b = sd_frame[i*2, j*2+1]
-            c = sd_frame[i*2+1, j*2]
-            d = sd_frame[i*2+1, j*2+1]
-
-            summ = a  / 4 + b / 4 + c / 4 + d / 4
+            summ = 0
+            for m in range (k):
+                for n in range (k):
+                    summ += frame[i*k+n, j*k+m] / (k * k)
+                    # a = frame[i*4, j*4]
+                    # b = frame[i*4, j*4+1]
+                    # c = frame[i*4+1, j*4]
+                    # d = frame[i*4+1, j*4+1]
             new_img_array[i, j] = summ
 
     return new_img_array
 
-def resize_video(input_video_path, output_video_path):
-    # Load the input video clip
-    clip = VideoFileClip(input_video_path,has_mask=True)
-    width, height = clip.size[0], clip.size[1]
+def resize_video(np_array, output_video_path, fps):
+    
+    target_width = 40
+    target_height = 30
 
     # Process each frame of the video
     processed_frames = []
-    for frame in clip.mask.iter_frames(dtype="uint8"):
+    video_frames = []
+    print("VIDEO SIZE:", len(np_array), len(np_array[0]), len(np_array[0][0]))
+    for i, frame in enumerate(np_array):
         # print("frame", frame.mask)
-        resized_frame = resize_frame(frame, int(width/2), int(height/2))
+        # if i % 100 == 0:
+        #     print(i)
+        resized_frame = frame
+        # while len(resized_frame) > target_height:
+            # print(len(resized_frame))
+        resized_frame = resize_frame(resized_frame)
         processed_frames.append(resized_frame)
+    
+        rgb_frame = np.stack((resized_frame,)*3, axis=-1)
+        video_frames.append(rgb_frame)
 
-    # Create a video clip from the processed frames
-    processed_clip = VideoClip(lambda t: processed_frames[int(t * clip.fps)], duration=clip.duration)
+    # Create a video from the processed frames
+    video_clip = ImageSequenceClip([frame for frame in video_frames], fps=fps)
 
-    # Write the processed video clip to a file
-    processed_clip.write_videofile(output_video_path, fps=clip.fps)
+    # Write the video to a file
+    video_clip.write_videofile(output_video_path, codec='libx264')   # Create a video clip from the processed frames
+
 
 def grayscale_video(input_video_path, output_video_path):
+# Load the input video clip
     clip = VideoFileClip(input_video_path)
 
     # Process each frame of the video
     processed_frames = []
+    gray_array = []
     for frame in clip.iter_frames(dtype="uint8"):
-        
-        # Resize the frame
-        grayscale_frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-        # print("GRAY", grayscale_frame)
-        processed_frames.append(grayscale_frame)
-    
-    # Create a video clip from the processed frames
-    processed_clip = VideoClip(lambda t: processed_frames[int(t * clip.fps)], duration=clip.duration)
+        # Convert the frame to grayscale
+        image = Image.fromarray(frame)
+        grayscale_image = image.convert('L')
+        # grayscale_frame = to_grayscale(frame)
+        grayscale_array = np.array(grayscale_image)
+        gray_array.append(grayscale_array)
+        rgb_frame = np.stack((grayscale_array,)*3, axis=-1)
+        processed_frames.append(rgb_frame)
 
-    # Write the processed video clip to a file
-    processed_clip.write_videofile(output_video_path, fps=clip.fps)
-    
-# def to_grayscale(frame):
-# # Convert the frame to grayscale using cv2
-#     grayscale_frame = frame.copy()
-#     grayscale_frame[:,:,0] = grayscale_frame[:,:,1] = grayscale_frame[:,:,2] = (0.2989*grayscale_frame[:,:,0] + 0.5870*grayscale_frame[:,:,1] + 0.1140*grayscale_frame[:,:,2]).astype('uint8')
-#     return grayscale_frame
+    # Create a video from the processed frames
+    video_clip = ImageSequenceClip([frame for frame in processed_frames], fps=clip.fps)
 
-# def grayscale_video(input_video_path, output_video_path):
-# # Load the input video clip
-#     clip = VideoFileClip(input_video_path)
+    # Write the video to a file
+    video_clip.write_videofile(output_video_path, codec='libx264')   # Create a video clip from the processed frames
 
-#     # Process each frame of the video
-#     processed_frames = []
-#     for frame in clip.iter_frames():
-#         # Convert the frame to grayscale
-#         grayscale_frame = to_grayscale(frame)
-#         processed_frames.append(grayscale_frame)
-
-#     # Create a video clip from the processed frames
-#     processed_clip = VideoClip(lambda t: processed_frames[int(t * clip.fps)], duration=clip.duration)
-
-#     # Write the processed video clip to a file
-#     processed_clip.write_videofile(output_video_path, fps=clip.fps)
-
-
-
-
+    return gray_array, clip.fps
 
 
 def convert_to_sd(input_video_path, output_video_path, target_fps):
@@ -212,12 +209,12 @@ if __name__ == "__main__":
     video_path = get_video_path()
     output_video = 'output_video_sd.mp4'
     convert_to_sd(video_path, output_video, 30)             # 640 * 480
-    grayscale_video(output_video, "gray_out.mp4")
+    tmp, fps = grayscale_video(output_video, "gray_out.mp4")
 
-    resize_video("gray_out.mp4", "resized_out.mp4")           # 320 * 240
-    resize_video("resized_out.mp4", "resized_out2.mp4")     # 160 * 120
-    resize_video("resized_out2.mp4", "resized_out3.mp4")    # 80 * 60
-    resize_video("resized_out3.mp4", "resized_out4.mp4")    # 40 * 30
+    resize_video(tmp, "resized_out.mp4", fps)           # 320 * 240
+    # resize_video("resized_out.mp4", "resized_out2.mp4")     # 160 * 120
+    # resize_video("resized_out2.mp4", "resized_out3.mp4")    # 80 * 60
+    # resize_video("resized_out3.mp4", "resized_out4.mp4")    # 40 * 30
 
 
 
