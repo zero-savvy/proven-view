@@ -15,7 +15,7 @@ def poseidon(num1: str, num2: str):
     
     try:
         # Run the command
-        result = subprocess.run(['./poseidon-circom/poseidon_cpp/poseidon', 'poseidon-input.json', 'witness.wtns'], capture_output=True, text=True, check=True)
+        result = subprocess.run(['./../circuits/poseidon_cpp/poseidon', 'poseidon-input.json', 'witness.wtns'], capture_output=True, text=True, check=True)
         
         # Capture the output
         output = result.stdout.strip()
@@ -23,7 +23,7 @@ def poseidon(num1: str, num2: str):
         # Convert the output to an integer
         output_number = int(output)
         
-        return output_number
+        return hex(output_number)
     except subprocess.CalledProcessError as e:
         print(f"Command failed with exit code {e.returncode}")
         print(f"Error output: {e.stderr}")

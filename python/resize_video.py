@@ -13,7 +13,7 @@ import moviepy
 from PIL import Image
 
 import matplotlib.pyplot as plt
-
+from poseidon import poseidon
 
 def get_video_path():
     root = tk.Tk()
@@ -71,7 +71,7 @@ def compress(array_in):
             hexValue = ''
             for j in range(0, len(frame[i])):
                 hexValue = hex(int(frame[i][j]))[2:].zfill(2) + hexValue
-            frame_array.append(hexValue)
+            frame_array.append("0x" + hexValue)
         output_array.append(frame_array)
     return output_array
 
@@ -222,6 +222,15 @@ def convert_to_sd(input_video_path, output_video_path, target_fps):
 
     return sum(1 for dummy in resized_clip.iter_frames())
 
+def frames_hash(frames: list):
+    frames_hash_values = []
+    for i, frame in enumerate(frames):
+        for j in range(1, len(frame)):
+            frame[0] = poseidon(frame[0],frame[j])
+        frames_hash_values.append(frame[0])
+    return frames_hash_values
+
+
 if __name__ == "__main__":
     # Example usage
     video_path = get_video_path()
@@ -231,8 +240,9 @@ if __name__ == "__main__":
 
     frames = resize_video(tmp, "resized_out.mp4", fps)
     out = compress(frames)
+    frames_hash_values = frames_hash(out)
     with open("outputs.json", 'w') as fp:
-        json.dump(out, fp, indent=4)
+        json.dump(frames_hash_values, fp, indent=4)
 
 
 
