@@ -20,10 +20,6 @@ def get_video_path():
     file_path = filedialog.askopenfilename()
     return file_path
 
-# def compress_image(image_path):
-#     with Image.open(image_path) as image:
-#         return compress(image)
-
 def pixel_to_array(image_in):
     array_in = np.array(image_in).tolist()
     output_array = []
@@ -44,19 +40,22 @@ def pixel_to_array(image_in):
     return output_array
 
 # ////////////////////////////////////////////////////////////////////
-def extract_frames(video_path, start_frame, end_frame, output_path):
+def extract_frames(video_path, start_time, end_time, output_path):
     
     # Open the video file
     video_capture = cv2.VideoCapture(video_path)
     
     # Get total number of frames in the video
     total_frames = int(video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
+    fps = int(video_capture.get(cv2.CAP_PROP_FPS))
 
-    print (start_frame, total_frames, end_frame, total_frames)
+    start_frame = int(start_time * fps)
+    end_frame = max(int(end_time * fps), total_frames)
+
+    print (start_frame, end_frame, total_frames)
     
-    # Check if the start and end frames are within the total number of frames
-    if start_frame > total_frames or end_frame > total_frames:
-        print("Start or end frame exceeds total number of frames.")
+    if start_frame > total_frames:
+        print("Start frame exceeds total number of frames.")
         return
     
     if os.path.exists(output_path):
@@ -98,8 +97,8 @@ if __name__ == "__main__":
     height = 480 if resolution == 1 else (720 if resolution == 1 else 1080)
     output_path = "out_frames"
     output_video = 'resized_video.mp4'
-    total_frames = convert_to_sd(video_path, output_video, start_time, end_time, 30)
-    extract_frames(output_video, 0, total_frames, output_path)
+    convert_to_sd(video_path, output_video, 30)
+    extract_frames(output_video, start_time, end_time, output_path)
     compressed_out = []
     current_directory = os.getcwd()
     
@@ -107,6 +106,8 @@ if __name__ == "__main__":
     general_json = {
         # "height": height,
         "frames": total_frames,
+        "path_first": get_merkle_path(),
+        "path_last": get_merkle_path(),
     }
     with open(f"{output_path}/general.json", 'w') as fp:
         json.dump(general_json, fp, indent=4)

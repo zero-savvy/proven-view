@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import filedialog
 import ffmpeg
 
-from moviepy.editor import VideoFileClip, clips_array
+from moviepy.editor import VideoFileClip, clips_array, ImageSequenceClip
 import numpy as np
 from moviepy.video.fx import resize
 import os
@@ -15,36 +15,22 @@ def get_video_path():
     return file_path
 
 
-def convert_to_sd(input_video_path, output_video_path, start_time, end_time, target_fps):
-    # Load the video file
+def convert_to_sd(input_video_path, output_video_path, target_fps):
+    
     clip = VideoFileClip(input_video_path)
-    print("Original Video Info:")
-    print(f"Resolution: {clip.size[0]}x{clip.size[1]}")
-    print(f"Frame Rate: {clip.fps}")
-
-    # Check if the video is portrait or landscape
-    is_portrait = clip.size[1] > clip.size[0]
-
-    if is_portrait:
+    
+    if clip.size[1] > clip.size[0]:
         # Rotate the video by 90 degrees if it's portrait
         clip = clip.rotate(90)
 
-    # Trim the video from start_time to end_time
-    trimmed_clip = clip.subclip(start_time, end_time)
-
-    # Target resolution for SD
     target_width = 640
     target_height = 480
 
     # Calculate the new dimensions while maintaining the aspect ratio
-    original_width, original_height = trimmed_clip.size
-    aspect_ratio = original_width / original_height
-
-    # Calculate the new dimensions while maintaining the aspect ratio
-    original_width, original_height = trimmed_clip.size
+    original_width, original_height = clip.size
     aspect_ratio = original_width / original_height
     
-    if original_width / original_height > target_width / target_height:
+    if aspect_ratio > target_width / target_height:
         # Width is the constraining dimension
         new_width = target_width
         new_height = int(new_width / aspect_ratio)
@@ -54,19 +40,16 @@ def convert_to_sd(input_video_path, output_video_path, start_time, end_time, tar
         new_width = int(new_height * aspect_ratio)
 
     # Resize the video
-    resized_clip = trimmed_clip.resize(newsize=(new_width, new_height))
+    resized_clip = clip.resize(newsize=(new_width, new_height))
 
-    if clip.fps > target_fps:
-        # Set the new fps
-        resized_clip = resized_clip.set_fps(target_fps)
+    # Set the new fps
+    resized_clip = resized_clip.set_fps(int(min(target_fps, clip.fps)))
     
     # Write the resized video to a file
     temp_path = "temp_resized_vid.mp4"
     resized_clip.write_videofile(temp_path, codec='libx264')
 
     v = ffmpeg.input(temp_path)
-    print (target_height, target_width)
-    print (new_height, new_width)
     kwargs = {
         'w':str(target_width), 
         'h':str(target_height), 
@@ -77,8 +60,7 @@ def convert_to_sd(input_video_path, output_video_path, start_time, end_time, tar
     v_pad.output(output_video_path).run()
 
     os.remove(temp_path)
-
-    return sum(1 for dummy in resized_clip.iter_frames())
+    
 
 if __name__ == "__main__":
     # Example usage
@@ -89,3 +71,12 @@ if __name__ == "__main__":
     convert_to_sd(video_path, output_video, start_time, end_time, 30)
 
 
+    # trimmed_frames = []
+    # for i, frame in enumerate(clip.iter_frames()):
+    #     if i < int(start_time * clip.fps):
+    #         continue
+    #     if i > int(end_time * clip.fps):
+    #         break
+    #     trimmed_frames.append(frame)
+
+    # trimmed_clip = ImageSequenceClip([frame for frame in trimmed_frames], fps=clip.fps)

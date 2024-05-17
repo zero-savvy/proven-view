@@ -14,10 +14,10 @@ def get_merkle_path(merkle_tree, leaf_index):
     
     # Traverse from the leaf to the root
     current_index = leaf_index
-    for level in range(num_levels - 1):
+    for level in reversed(merkle_tree[1:]):
         # Determine the index of the sibling
         sibling_index = current_index ^ 1
-        sibling_value = merkle_tree[level][sibling_index]
+        sibling_value = level[sibling_index]
         
         # Append the sibling value to the path
         path.append(sibling_value)
@@ -28,17 +28,15 @@ def get_merkle_path(merkle_tree, leaf_index):
     
     return path, position
 
-def main():
+def get_merkle_path(leaf_index: int, tree_path):
     # Read the Merkle tree from the file
-    merkle_tree = read_merkle_tree('tree.json')
-    
-    # Specify the leaf index for which to get the Merkle path
-    leaf_index = 3  # Example index, change as needed
+    merkle_tree = read_merkle_tree(tree_path)
     
     # Get the Merkle path
-    merkle_path = get_merkle_path(merkle_tree, leaf_index)
+    merkle_path, positions = get_merkle_path(merkle_tree, leaf_index)
     
-    print(f"Merkle Path for leaf index {leaf_index}: {merkle_path}")
+    print(f"Merkle Path for leaf index {leaf_index}: {merkle_path}, {positions}")
+
 
 if __name__ == "__main__":
-    main()
+    get_merkle_path(3, 'tree.json')
