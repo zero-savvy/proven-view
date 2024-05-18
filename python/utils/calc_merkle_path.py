@@ -2,6 +2,7 @@ import json
 
 def read_merkle_tree(file_path):
     """Read the Merkle tree from a JSON file."""
+    print(file_path)
     with open(file_path, 'r') as f:
         merkle_tree = json.load(f)
     return merkle_tree
@@ -28,7 +29,7 @@ def get_merkle_path(merkle_tree, leaf_index):
     
     return path, position
 
-def get_merkle_path(leaf_index: int, tree_path):
+def calc_merkle_path(tree_path, leaf_index: int):
     # Read the Merkle tree from the file
     merkle_tree = read_merkle_tree(tree_path)
     

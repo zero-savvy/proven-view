@@ -87,12 +87,20 @@ def grayscale_video(input_video_path, output_video_path):
 
 def trim(input_video_path, start_time, end_time, output_path, output_video_path):
 
+    if os.path.exists(output_path):
+        shutil.rmtree(output_path)
+    os.makedirs(output_path)
+
     # Load the input video clip
     clip = VideoFileClip(input_video_path)
 
-    total_frames = clip.iter_frames(dtype="uint8").count()
+    total_frames = 0
+    # We use this method instead of List.count to prevent large memory allocation!
+    for i in clip.iter_frames(dtype="uint8"):
+        total_frames += 1
+
     start_frame = int(start_time * clip.fps)
-    end_frame = max(int(end_time * clip.fps), total_frames)
+    end_frame = min(int(end_time * clip.fps), total_frames)
 
     if start_frame > total_frames:
         print("Start frame exceeds total number of frames.")
@@ -100,27 +108,24 @@ def trim(input_video_path, start_time, end_time, output_path, output_video_path)
     
     # Process each frame of the video
     processed_frames = []
-    for i, frame in enumerate(clip.iter_frames(dtype="uint8")[start_frame, end_time]):
+    original_frames = []
+    for i, frame in enumerate(clip.iter_frames(dtype="uint8")):
+        if i < start_frame:
+            continue
+        if i > end_frame:
+            break
         image = Image.fromarray(frame)
+        original_frames.append(frame)
         processed_frames.append(image)
 
-        frame_output_path = os.path.join(output_path, f"frame_{i}.jpg")
+        frame_output_path = os.path.join(output_path, f"frame_{i-start_frame}.jpg")
         cv2.imwrite(frame_output_path, frame)
 
     # Create a video from the processed frames
-    video_clip = ImageSequenceClip([frame for frame in processed_frames], fps=clip.fps)
+    video_clip = ImageSequenceClip([frame for frame in original_frames], fps=clip.fps)
 
     # Write the video to a file
     video_clip.write_videofile(output_video_path, codec='libx264')   # Create a video clip from the processed frames
 
-    if os.path.exists(output_path):
-        shutil.rmtree(output_path)
-    
-    os.makedirs(output_path)
+    return start_frame, end_frame, total_frames
 
-    
-    for i, frame in enumerate(data[start_frame, end_frame]):
-        
-
-    
-    return tree

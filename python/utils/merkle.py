@@ -1,6 +1,6 @@
 import json
 import math
-from poseidon import poseidon
+from .poseidon import poseidon
 
 
 def pad_to_power_of_two(data):

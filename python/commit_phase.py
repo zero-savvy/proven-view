@@ -77,7 +77,11 @@ if __name__ == "__main__":
 
     # Step 4
     merkle_tree = build_merkle_tree(frames_hash_values)
-    print(merkle_tree[0][0])
+    print("Merkle root of the commited video:", merkle_tree[0][0])
+
+    merkle_file = 'tree.json'
+    with open(merkle_file, 'w') as mkf:
+        json.dump(merkle_tree, mkf, indent=4)
 
     # Step 5
     # sign_and_commit(merkle_tree[0][0])

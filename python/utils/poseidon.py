@@ -14,7 +14,7 @@ def poseidon(num1: str, num2: str):
         json.dump(input_data, f)
     
     try:
-        result = subprocess.run(['./../../circuits/poseidon_cpp/poseidon', 
+        result = subprocess.run(['./../circuits/poseidon_cpp/poseidon', 
                                  'poseidon-input.json', 'witness.wtns'], 
                                  capture_output=True, text=True, check=True)
         output = result.stdout.strip()

@@ -10,7 +10,7 @@ import cv2
 import numpy as np
 from PIL import Image
 
-from utils.calc_merkle_path import get_merkle_path
+from utils.calc_merkle_path import calc_merkle_path
 from utils.poseidon import frames_hash
 from utils.convert_to_sd import convert_to_sd
 from utils.video_edit import grayscale_video, resize_video, trim
@@ -44,17 +44,20 @@ if __name__ == "__main__":
     end_time = int(input("Enter end frame (this frame will include): ") or "1")
     
     output_path = "out_frames"
-    output_video = 'trimmed_video.mp4'
+    trimmed_video = 'trimmed_video.mp4'
+    sd_video = 'sd_video.mp4'
+    gray_video = 'gray_video.mp4'
+    squeezed_video = 'squeezed_video.mp4'
 
     # Step 1
-    convert_to_sd(video_path, output_video, 30)
+    convert_to_sd(video_path, sd_video, 30)
 
     # Trim the video
-    start_frame, end_frame, total_frames =  trim(output_video, start_time, end_time, output_path)
+    start_frame, end_frame, total_frames =  trim(sd_video, start_time, end_time, output_path, trimmed_video)
     
     # Step 2
-    tmp, fps = grayscale_video(output_video, "gray_out.mp4")
-    frames = resize_video(tmp, "resized_out.mp4", fps)
+    tmp, fps = grayscale_video(trimmed_video, gray_video)
+    frames = resize_video(tmp, squeezed_video, fps)
     out = compress(frames)
 
     # Step 3
@@ -63,8 +66,6 @@ if __name__ == "__main__":
         json.dump(frames_hash_values, fp, indent=4)
 
 
-    # Trim the video
-    start_frame, end_frame, total_frames =  trim(output_video, start_time, end_time, output_path)
     compressed_out = []
     current_directory = os.getcwd()
     
@@ -73,8 +74,8 @@ if __name__ == "__main__":
     general_json = {
         # "height": height,
         "frames": total_frames,
-        "path_start": get_merkle_path(merkle_file, start_frame),
-        "path_end": get_merkle_path(merkle_file, end_frame),
+        "path_start": calc_merkle_path(merkle_file, start_frame),
+        "path_end": calc_merkle_path(merkle_file, end_frame),
     }
     with open(f"{output_path}/general.json", 'w') as fp:
         json.dump(general_json, fp, indent=4)
