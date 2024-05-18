@@ -10,8 +10,19 @@ use serde_json::json;
 
 #[derive(Deserialize)]
 struct GeneralInput {
-    // height: usize,
     frames: usize,
+    prev_hash: [u64; 4],   // TODO: make it String
+}
+
+#[derive(Deserialize)]
+struct PathInput {
+    levels: usize,
+    path_elements_start: Vec<String>,
+    path_indices_start: Vec<u8>,
+    leaf_start: [u64; 4],
+    path_elements_end: Vec<String>,
+    path_indices_end: Vec<u8>,
+    leaf_end: [u64; 4],
 }
 
 #[derive(Deserialize)]
@@ -19,7 +30,8 @@ struct FrameInput {
     orig: Vec<Vec<Vec<String>>>,
 }
 
-fn fold_fold_fold(selected_function: String,
+fn fold_fold_fold(proof_type: String,
+            selected_function: String,
             circuit_filepath: String,
             witness_gen_filepath: String,
             output_file_path: String,
@@ -43,30 +55,55 @@ fn fold_fold_fold(selected_function: String,
     let mut private_inputs = Vec::new();
     let mut start_public_input: Vec<F::<G1>> = Vec::new();
 
-    
-    let mut input_file = File::open(input_folder_path.clone()+ ("/general.json")).expect("Failed to open the file");
+    let mut input_file;
+
+    if proof_type == "integrity" {
+        input_file = File::open(input_folder_path.clone()+ ("/general.json")).expect("Failed to open the file");
+    } else {
+        input_file = File::open(input_folder_path.clone()+ ("/path.json")).expect("Failed to open the file");
+    }
     let mut input_file_json_string = String::new();
     input_file.read_to_string(&mut input_file_json_string).expect("Unable to read from the file");
 
-    let input_data: GeneralInput = serde_json::from_str(&input_file_json_string).expect("Deserialization failed");
-    let iteration_count = input_data.frames;
+    let mut iteration_count = 0;
+    
 
     if selected_function == "trim" {
+
+        if proof_type == "integrity" {
+            let input_data: GeneralInput = serde_json::from_str(&input_file_json_string).expect("Deserialization failed");
+            iteration_count = input_data.frames;
+            start_public_input.push(F::<G1>::from_raw(input_data.prev_hash));
+            // start_public_input.push(F::<G1>::from(input_data.info));  // x|y|index
+            for i in 0..iteration_count {
+                let mut input_file = File::open(input_folder_path.clone() + "/frame_" + i.to_string().as_str() + ".json").expect("Failed to open the file");
+                let mut input_file_json_string = String::new();
+                input_file.read_to_string(&mut input_file_json_string).expect("Unable to read from the file");
+
+                let input_data: FrameInput = serde_json::from_str(&input_file_json_string).expect("Deserialization failed");
+
+                let mut private_input = HashMap::new();
+                private_input.insert("orig".to_string(), json!(input_data.orig));
+                private_inputs.push(private_input);
+            }
+
+        } else {
+            let input_data: PathInput = serde_json::from_str(&input_file_json_string).expect("Deserialization failed");
+            iteration_count = input_data.levels;
+            start_public_input.push(F::<G1>::from_raw(input_data.leaf_start));
+            start_public_input.push(F::<G1>::from_raw(input_data.leaf_end));
+            // start_public_input.push(F::<G1>::from(input_data.info));  // x|y|index
+            for i in 0..iteration_count {
+                let mut private_input = HashMap::new();
+                private_input.insert("firstPathElement".to_string(), json!(input_data.path_elements_start[i]));
+                private_input.insert("lastPathElement".to_string(), json!(input_data.path_elements_end[i]));
+                private_input.insert("firstPathSel".to_string(), json!(input_data.path_indices_start[i]));
+                private_input.insert("lastPathSel".to_string(), json!(input_data.path_indices_end[i]));
+                private_inputs.push(private_input);
+            }
+        }    
        
-        start_public_input.push(F::<G1>::from(0));
-        // start_public_input.push(F::<G1>::from(input_data.info));  // x|y|index
-        for i in 0..iteration_count {
-
-            let mut input_file = File::open(input_folder_path.clone() + "/frame_" + i.to_string().as_str() + ".json").expect("Failed to open the file");
-            let mut input_file_json_string = String::new();
-            input_file.read_to_string(&mut input_file_json_string).expect("Unable to read from the file");
-
-            let input_data: FrameInput = serde_json::from_str(&input_file_json_string).expect("Deserialization failed");
-
-            let mut private_input = HashMap::new();
-            private_input.insert("orig".to_string(), json!(input_data.orig));
-            private_inputs.push(private_input);
-        }
+        
     } else {
         // Err("given function is not implemented yet :)");
         println!(
@@ -199,6 +236,16 @@ fn main() {
             .takes_value(true)
         )
         .arg(
+            Arg::with_name("proof")
+            .required(true)
+            .short("p")
+            .long("proof")
+            .value_name("PROOF")
+            .help("Type of the proof to be generated.")
+            .takes_value(true)
+            .possible_values(&["integrity", "authenticity"])
+        )
+        .arg(
             Arg::with_name("output")
             .required(true)
             .short("o")
@@ -241,6 +288,7 @@ fn main() {
     let circuit_filepath = matches.value_of("circuit").unwrap();
     let output_filepath = matches.value_of("output").unwrap();
     let input_filepath = matches.value_of("input").unwrap();
+    let proof_type = matches.value_of("proof").unwrap();
     let selected_function = matches.value_of("function").unwrap();
 
     println!(" ________________________________________________________");
@@ -250,6 +298,7 @@ fn main() {
     println!("|  __/| | | (_) \\ V /  __/ | | | \\ V / | |  __/\\ V  V / ");
     println!("|_|   |_|  \\___/ \\_/ \\___|_| |_|  \\_/  |_|\\___| \\_/\\_/  ");
     println!(" ________________________________________________________");
+    println!("| Proof Type: {}", proof_type);
     println!("| Input file: {}", input_filepath);
     println!("| Ouput file: {}", output_filepath);
     println!("| Selected function: {}", selected_function);
@@ -258,10 +307,12 @@ fn main() {
     println!(" ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾");
 
 
-    fold_fold_fold(selected_function.to_string().clone(),
+    fold_fold_fold(proof_type.to_string(),
+                selected_function.to_string().clone(),
                 circuit_filepath.to_string().clone(),
                 witness_gen_filepath.to_string(),
                 output_filepath.to_string(),
                 input_filepath.to_string()
             );
+
 }
