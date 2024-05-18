@@ -12,9 +12,9 @@ contract MediaAuthenticator {
 
     struct VideoProof {
         SpartanProof spartproof;  // mock
-        uint256[] pubSignals; // assuming pubSignals is an array of uint256
-        uint256 hOrig;
-        uint256 hTrim;
+        uint256[] pubSignals; // assuming pubSignals is an array of uint256 (step_in, step_out)
+        uint256 hOrig;   // merkle root
+        uint256 hTrim;   // hash pf trimmed video that user wants to verify it's originality
     }
     
     modifier onlyOwner() {
@@ -34,50 +34,46 @@ contract MediaAuthenticator {
         return verifiedOriginals[verifiedEdits[value]];
     }
 
-    function authenticate(VideoProof[] memory data, bytes memory sig_alpha, bytes memory sig_owner) public {
+    function authenticate(VideoProof memory data, bytes memory sig_alpha, bytes memory sig_owner) public {
         bool proofVerification;
         uint256 h_orig;
         uint256 h_trim;
         uint256 id_trim;
-        uint256 id_orig;   // chack the usage???
+        uint256 id_orig;   // check the usage???
         uint256 id_owner;
         address addr;
 
-        for (uint256 i = 0; i < data.length; i++) {
+
             
             // verify zkSNARK proof
-            proofVerification = verifier.verify_proof(data[i]);
-            require(proofVerification, "Incorrect Proof!");
+        proofVerification = verifier.verify_proof(data[i]);
+        require(proofVerification, "Incorrect Proof!");
 
-            h_orig = data[i].hOrig;
-            h_trim = data[i].hTrim;
+        h_orig = data.hOrig;
+        h_trim = data.hTrim;
 
-            if (i == 0) {
-                address recovered_signer = ECDSA.recover(h_orig, sig_alpha);
+        address recovered_signer = ECDSA.recover(h_orig, sig_alpha);
 
-                if (verifiedOriginals[h_orig] == 0) {
-                    require(verifiedPubkeys[recovered_signer] != 0,
-                        "UnAuthorizedPubkey: new original must be signed by verified pubkeys only!");
-                    require(recovered_signer != address(0), "ECDSA: invalid signature");
-                }
-
-                if (recovered_signer != msg.sender) {
-                    bytes32 ownership_msg = keccak256(abi.encodePacked("TRANSFER", h_orig, "TO", msg.sender));
-                    address recovered_prev_owner = ECDSA.recover(ownership_msg, sig_owner);
-                    require(recovered_prev_owner == recovered_signer, "Previous owner must sign the original!");
-                    require(verifiedOriginals[h_orig] == 0 || verifiedOriginals[h_orig] == recovered_prev_owner, "Previous owner must be valid!");
-                }
-
-                id_owner = msg.sender;
-                id_orig = h_orig;
-            } else {
-                require(data[i-1].hTrim == data[i].hOrig, 
-                    "Edits must be sequencial!");
-            }
-
-            verifiedOriginals[id_orig] = id_owner;
-            verifiedEdits[id_tran] = id_orig;
+        if (verifiedOriginals[h_orig] == 0) {
+            require(verifiedPubkeys[recovered_signer] != 0,
+                "UnAuthorizedPubkey: new original must be signed by verified pubkeys only!");
+            require(recovered_signer != address(0), "ECDSA: invalid signature");
         }
+
+        if (recovered_signer != msg.sender) {
+            bytes32 ownership_msg = keccak256(abi.encodePacked("TRANSFER", h_orig, "TO", msg.sender));
+            address recovered_prev_owner = ECDSA.recover(ownership_msg, sig_owner);
+            require(recovered_prev_owner == recovered_signer, "Previous owner must sign the original!"); // check if the condition is correct
+            require(verifiedOriginals[h_orig] == 0 || verifiedOriginals[id_orig] == recovered_prev_owner, "Previous owner must be valid!");
+        }
+
+        id_owner = msg.sender;
+        id_orig = h_orig;   // so why??? recovered signer?
+
+
+        verifiedOriginals[id_orig] = id_owner;
+        verifiedEdits[id_tran] = id_orig;
+    
 
         address convertedAddress = address(uint160(data.pubSignals[1]));
         
@@ -97,7 +93,7 @@ contract MediaAuthenticator {
     }
 
     function add_pubkey(uint256 pubkey) external onlyOwner {
-        authorizedPubkeys.push(pubkey);
+        verifiedPubkeys.push(pubkey);
         return; 
     }
 }
