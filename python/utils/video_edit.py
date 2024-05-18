@@ -2,18 +2,13 @@ import os
 import shutil
 import json
 
-import cv2
 import numpy as np
 from PIL import Image
 from moviepy.editor import VideoFileClip, ImageSequenceClip
 
 
 def resize_frame(frame):
-    # Resize the frame to the new dimensions
-    # sd_frame = np.array(frame)
-    # height, width = sd_frame.shape
-    # print('channels: ', channels)
-    # Initialize the new image array
+    
     k = 16  # from SD --to--> 30x40 resolution
     _width, _height = int(len(frame[0])/k), int(len(frame)/k)
     new_img_array = np.zeros((_height, _width), dtype=np.uint8)
@@ -39,12 +34,7 @@ def resize_video(np_array, output_video_path, fps):
     video_frames = []
     print("VIDEO SIZE:", len(np_array), len(np_array[0]), len(np_array[0][0]))
     for i, frame in enumerate(np_array):
-        # print("frame", frame.mask)
-        # if i % 100 == 0:
-        #     print(i)
         resized_frame = frame
-        # while len(resized_frame) > target_height:
-            # print(len(resized_frame))
         resized_frame = resize_frame(resized_frame)
         processed_frames.append(resized_frame)
     
@@ -60,30 +50,28 @@ def resize_video(np_array, output_video_path, fps):
     return processed_frames
 
 
-def grayscale_video(input_video_path, output_video_path):
+def grayscale_resize_compress(input_video_path):
     # Load the input video clip
     clip = VideoFileClip(input_video_path)
 
     # Process each frame of the video
-    processed_frames = []
-    gray_array = []
+    # processed_frames = []
+    output_array = []
     for frame in clip.iter_frames(dtype="uint8"):
         # Convert the frame to grayscale
         image = Image.fromarray(frame)
         grayscale_image = image.convert('L')
-        # grayscale_frame = to_grayscale(frame)
-        grayscale_array = np.array(grayscale_image)
-        gray_array.append(grayscale_array)
-        rgb_frame = np.stack((grayscale_array,)*3, axis=-1)
-        processed_frames.append(rgb_frame)
+    
+        resized_frame = resize_frame(np.array(grayscale_image))
 
-    # Create a video from the processed frames
-    video_clip = ImageSequenceClip([frame for frame in processed_frames], fps=clip.fps)
-
-    # Write the video to a file
-    video_clip.write_videofile(output_video_path, codec='libx264')   # Create a video clip from the processed frames
-
-    return gray_array, clip.fps
+        frame_array = []
+        for i in range(0, len(resized_frame)):
+            hexValue = ''
+            for j in range(0, len(resized_frame[i])):
+                hexValue = hex(int(resized_frame[i][j]))[2:].zfill(2) + hexValue
+            frame_array.append("0x" + hexValue)
+        output_array.append(frame_array)
+    return output_array
 
 
 def pixel_to_array(image_in):

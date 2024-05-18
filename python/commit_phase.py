@@ -9,8 +9,7 @@ import matplotlib.pyplot as plt
 from utils.poseidon import frames_hash
 from utils.merkle import build_merkle_tree
 from utils.convert_to_sd import convert_to_sd
-from utils.video_edit import grayscale_video, resize_video
-from utils.json_helper import compress
+from utils.video_edit import grayscale_resize_compress
 
 def get_video_path():
     root = tk.Tk()
@@ -66,9 +65,7 @@ if __name__ == "__main__":
     convert_to_sd(video_path, output_video, 30)             # 640 * 480
     
     # Step 2
-    tmp, fps = grayscale_video(output_video, "gray_out.mp4")
-    frames = resize_video(tmp, "resized_out.mp4", fps)
-    out = compress(frames)
+    out = grayscale_resize_compress(output_video)
 
     # Step 3
     frames_hash_values = frames_hash(out)
