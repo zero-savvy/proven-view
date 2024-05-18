@@ -7,21 +7,22 @@ contract MediaAuthenticator {
     uint256[] public validRoots;
     uint256[] public verifiedPubkeys;
     mapping(uint256 => uint256) public verifiedOriginals;   // list of original Merkle roots
-    mapping(uint256 => uint256) public verifiedEdits;       // list of trimed videos
+    mapping(uint256 => uint256) public verifiedEdits;       // list of trimed videos/ assigned to original hashes
     SpartanVerifier public verifier;
 
     struct VideoProof {
-        SpartanProof spartproof;  // mock
-        uint256[] pubSignals; // assuming pubSignals is an array of uint256 (step_in, step_out)
+        SpartanProof order_proof;  // mock
+        SpartanProof path_proof;  // mock
         uint256 hOrig;   // merkle root
-        uint256 hTrim;   // hash pf trimmed video that user wants to verify it's originality
+        uint256 hFirst;   // hash pf trimmed video that user wants to verify it's originality --> hash(first, last) trimmed
+        uint256 hLast;
     }
     
     modifier onlyOwner() {
         require(owner == msg.sender);
         _;
     }
-        constructor(address spartan_verifier) {
+    constructor(address spartan_verifier) {
         owner = msg.sender;
         verifier = SpartanVerifier(spartan_verifier);
     }
@@ -34,7 +35,7 @@ contract MediaAuthenticator {
         return verifiedOriginals[verifiedEdits[value]];
     }
 
-    function authenticate(VideoProof memory data, bytes memory sig_alpha, bytes memory sig_owner) public {
+    function authenticate(VideoProof memory data, bytes memory sig_alpha) public {
         bool proofVerification;
         uint256 h_orig;
         uint256 h_trim;
@@ -45,55 +46,37 @@ contract MediaAuthenticator {
 
 
             
-            // verify zkSNARK proof
-        proofVerification = verifier.verify_proof(data[i]);
-        require(proofVerification, "Incorrect Proof!");
+        // verify zkSNARK proof
+        proofVerification_order = verifier.verifyProof_order(data.order_proof, data.hOrig, data.hFirst, data.hLast);
+        require(proofVerification_order, "Incorrect Order Proof!");
+
+        // verify zkSNARK proof
+        proofVerification_path = verifier.verifyProof_path(data.path_proof, data.hOrig, data.hFirst, data.hLast);
+        require(proofVerification_path, "Incorrect Path Proof!");
 
         h_orig = data.hOrig;
-        h_trim = data.hTrim;
+        h_trim_first = data.hFirst;
+        h_trim_last = data.hLast;
+
 
         address recovered_signer = ECDSA.recover(h_orig, sig_alpha);
 
         if (verifiedOriginals[h_orig] == 0) {
             require(verifiedPubkeys[recovered_signer] != 0,
                 "UnAuthorizedPubkey: new original must be signed by verified pubkeys only!");
-            require(recovered_signer != address(0), "ECDSA: invalid signature");
         }
 
-        if (recovered_signer != msg.sender) {
-            bytes32 ownership_msg = keccak256(abi.encodePacked("TRANSFER", h_orig, "TO", msg.sender));
-            address recovered_prev_owner = ECDSA.recover(ownership_msg, sig_owner);
-            require(recovered_prev_owner == recovered_signer, "Previous owner must sign the original!"); // check if the condition is correct
-            require(verifiedOriginals[h_orig] == 0 || verifiedOriginals[id_orig] == recovered_prev_owner, "Previous owner must be valid!");
-        }
+        verifiedOriginals[h_orig] = msg.sender;
 
-        id_owner = msg.sender;
-        id_orig = h_orig;   // so why??? recovered signer?
+        h_trim = keccak256(abi.encodePacked(h_trim_first, h_trim_last));
+        verifiedEdits[h_trim] = h_orig;
 
-
-        verifiedOriginals[id_orig] = id_owner;
-        verifiedEdits[id_tran] = id_orig;
-    
-
-        address convertedAddress = address(uint160(data.pubSignals[1]));
-        
-        // check authenticity of the device address
-        if (convertedAddress != msg.sender)
-            { revert(); } 
-
-        // check validity of the Merkle root
-        if (!checkRoot(data.pubSignals[0])) 
-            { revert(); } 
-        
-        // verify zkSNARK proof
-        bool proofVerification;
-        proofVerification = verifier.verifyProof(_pA, [_pB1, _pB2], _pC, data.pubSignals);    // verify proof is a function in spartan for verifying proofs.
-        if (!proofVerification)
-            { revert(); }
+        return;
     }
 
     function add_pubkey(uint256 pubkey) external onlyOwner {
         verifiedPubkeys.push(pubkey);
         return; 
     }
+
 }
