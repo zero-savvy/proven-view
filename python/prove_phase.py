@@ -10,8 +10,11 @@ import cv2
 import numpy as np
 from PIL import Image
 
+from utils.calc_merkle_path import get_merkle_path
+from utils.poseidon import frames_hash
 from utils.convert_to_sd import convert_to_sd
-
+from utils.video_edit import grayscale_video, resize_video, trim
+from utils.json_helper import compress
 
 
 def get_video_path():
@@ -23,91 +26,55 @@ def get_video_path():
 def pixel_to_array(image_in):
     array_in = np.array(image_in).tolist()
     output_array = []
-    # print(len(array_in), len(array_in[0]), len(array_in[0][0]))
 
     for i in range(0, len(array_in)):
         row = []
         hexValue = ''
         for j in range(0, len(array_in[i])):
-            # if np.isscalar(array_in[i][j]):
-            #     hexValue = hex(int(array_in[i][j]))[2:].zfill(6) + hexValue
-            # else:
-            #     for k in range(0, 3):
-            #         hexValue = hex(int(array_in[i][j][k]))[2:].zfill(2) + hexValue
-            # if j % 2 == 1:
             row.append(["0x" + hex(int(array_in[i][j][k]))[2:].zfill(2) for k in range(0, 3)])
         output_array.append(row)
     return output_array
 
-# ////////////////////////////////////////////////////////////////////
-def extract_frames(video_path, start_time, end_time, output_path):
-    
-    # Open the video file
-    video_capture = cv2.VideoCapture(video_path)
-    
-    # Get total number of frames in the video
-    total_frames = int(video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
-    fps = int(video_capture.get(cv2.CAP_PROP_FPS))
-
-    start_frame = int(start_time * fps)
-    end_frame = max(int(end_time * fps), total_frames)
-
-    print (start_frame, end_frame, total_frames)
-    
-    if start_frame > total_frames:
-        print("Start frame exceeds total number of frames.")
-        return
-    
-    if os.path.exists(output_path):
-        shutil.rmtree(output_path)
-    
-    os.makedirs(output_path)
-
-    # Set the start frame
-    video_capture.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
-    
-    # Loop through the frames and extract them
-    frame_count = 0
-    while True:
-        ret, frame = video_capture.read()
-        if not ret:
-            break
-
-        # Check if end frame reached
-        if frame_count > end_frame - start_frame:
-            break
-        
-        # Save the frame
-        # frame_output_path = f"{output_path}/frame_{frame_count}.jpg"
-        frame_output_path = os.path.join(output_path, f"frame_{frame_count}.jpg")
-        cv2.imwrite(frame_output_path, frame)
-        frame_count += 1
-        
-    
-    # Release the video capture object
-    video_capture.release()
 
 if __name__ == "__main__":
-    # video_file = r"SampleVideo_1280x720_1mb.mp4"  # Replace with your video's name
+    
     video_path = get_video_path()
     print('start ...')
     start_time = int(input("Enter start frame (this frame will include): ") or "0")
     end_time = int(input("Enter end frame (this frame will include): ") or "1")
-    resolution = int(input("Proving Resolution: 1) SD, 2) HD, 3) FHD: ") or "1")
-    height = 480 if resolution == 1 else (720 if resolution == 1 else 1080)
+    
     output_path = "out_frames"
-    output_video = 'resized_video.mp4'
+    output_video = 'trimmed_video.mp4'
+
+    # Step 1
     convert_to_sd(video_path, output_video, 30)
-    extract_frames(output_video, start_time, end_time, output_path)
+
+    # Trim the video
+    start_frame, end_frame, total_frames =  trim(output_video, start_time, end_time, output_path)
+    
+    # Step 2
+    tmp, fps = grayscale_video(output_video, "gray_out.mp4")
+    frames = resize_video(tmp, "resized_out.mp4", fps)
+    out = compress(frames)
+
+    # Step 3
+    frames_hash_values = frames_hash(out)
+    with open("outputs.json", 'w') as fp:
+        json.dump(frames_hash_values, fp, indent=4)
+
+
+    # Trim the video
+    start_frame, end_frame, total_frames =  trim(output_video, start_time, end_time, output_path)
     compressed_out = []
     current_directory = os.getcwd()
     
-    # Crop the image and save it
+    # Create inputs for Nova prover
+    merkle_file = 'tree.json'
     general_json = {
         # "height": height,
         "frames": total_frames,
-        "path_first": get_merkle_path(),
-        "path_last": get_merkle_path(),
+        "path_start": get_merkle_path(merkle_file, start_frame),
+        "path_end": get_merkle_path(merkle_file, end_frame),
     }
     with open(f"{output_path}/general.json", 'w') as fp:
         json.dump(general_json, fp, indent=4)

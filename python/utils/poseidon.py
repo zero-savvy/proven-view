@@ -14,26 +14,35 @@ def poseidon(num1: str, num2: str):
         json.dump(input_data, f)
     
     try:
-        # Run the command
-        result = subprocess.run(['./../circuits/poseidon_cpp/poseidon', 'poseidon-input.json', 'witness.wtns'], capture_output=True, text=True, check=True)
-        
-        # Capture the output
+        result = subprocess.run(['./../../circuits/poseidon_cpp/poseidon', 
+                                 'poseidon-input.json', 'witness.wtns'], 
+                                 capture_output=True, text=True, check=True)
         output = result.stdout.strip()
-        
-        # Convert the output to an integer
         output_number = int(output)
-        
         return hex(output_number)
+    
     except subprocess.CalledProcessError as e:
-        print(f"Command failed with exit code {e.returncode}")
+        print(f" Witness generator failed with exit code {e.returncode}")
         print(f"Error output: {e.stderr}")
         return None
+    
     finally:
         # Remove the input file
         if os.path.exists(input_file):
             os.remove(input_file)
         if os.path.exists('witness.wtns'):
             os.remove('witness.wtns')
+
+
+def frames_hash(frames: list):
+    frames_hash_values = []
+    for i, frame in enumerate(frames):
+        for j in range(1, len(frame)):
+            frame[0] = poseidon(frame[0],frame[j])
+        frames_hash_values.append(frame[0])
+    return frames_hash_values
+    
+
 
 if __name__ == "__main__":
     # Example usage
