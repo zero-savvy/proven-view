@@ -11,8 +11,8 @@ contract MediaAuthenticator {
     SpartanVerifier public verifier;
 
     struct VideoProof {
-        SpartanProof order_proof;  // mock
-        SpartanProof path_proof;  // mock
+        SpartanProof integrity_proof;  // mock ... order
+        SpartanProof authenticity_proof;  // mock ... path
         uint256 hOrig;   // merkle root
         uint256 hFirst;   // hash pf trimmed video that user wants to verify it's originality --> hash(first, last) trimmed
         uint256 hLast;
@@ -39,19 +39,16 @@ contract MediaAuthenticator {
         bool proofVerification;
         uint256 h_orig;
         uint256 h_trim;
-        uint256 id_trim;
-        uint256 id_orig;   // check the usage???
-        uint256 id_owner;
         address addr;
 
 
             
         // verify zkSNARK proof
-        proofVerification_order = verifier.verifyProof_order(data.order_proof, data.hOrig, data.hFirst, data.hLast);
+        proofVerification_order = verifier.verifyProof_integrity(data.integrity_proof, data.hOrig, data.hFirst, data.hLast);
         require(proofVerification_order, "Incorrect Order Proof!");
 
         // verify zkSNARK proof
-        proofVerification_path = verifier.verifyProof_path(data.path_proof, data.hOrig, data.hFirst, data.hLast);
+        proofVerification_path = verifier.verifyProof_authenticity(data.authenticity_proof, data.hOrig, data.hFirst, data.hLast);
         require(proofVerification_path, "Incorrect Path Proof!");
 
         h_orig = data.hOrig;

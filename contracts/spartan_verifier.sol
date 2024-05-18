@@ -7,11 +7,15 @@ contract SpartanVerifier {
         owner = _owner;
     }
 
-    function verifyProof_order(uint256 [100] proof, uint256 horig, uint256 hfirst, uint256 hlast) public view returns (bool) {
+    struct SpartanProof {
+        uint256[] proof;
+    }
+
+    function verifyProof_integrity(SpartanProof proof, uint256 horig, uint256 hfirst, uint256 hlast) public view returns (bool) {
         return true;
     }
 
-    function verifyProof_path(uint256 [100] proof, uint256 horig, uint256 hfirst, uint256 hlast) public view returns (bool) {
+    function verifyProof_authenticity(SpartanProof proof, uint256 horig, uint256 hfirst, uint256 hlast) public view returns (bool) {
         return true;
     }
 }
