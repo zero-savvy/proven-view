@@ -39,7 +39,11 @@ def frames_hash(frames: list):
     for i, frame in enumerate(frames):
         for j in range(1, len(frame)):
             frame[0] = poseidon(frame[0],frame[j])
-        frames_hash_values.append(frame[0])
+        if i == 0:
+            prev_hash = "0x00"
+        else:
+            prev_hash = frames_hash_values[-1]
+        frames_hash_values.append(poseidon(prev_hash, frame[0]))
     return frames_hash_values
     
 
