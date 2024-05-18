@@ -10,7 +10,7 @@ import cv2
 import numpy as np
 from PIL import Image
 
-from convert_to_sd import convert_to_sd
+from utils.convert_to_sd import convert_to_sd
 
 
 

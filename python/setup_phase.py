@@ -13,7 +13,7 @@ import moviepy
 from PIL import Image
 
 import matplotlib.pyplot as plt
-from poseidon import poseidon
+from utils.poseidon import poseidon
 from utils.merkle import build_merkle_tree
 from utils.convert_to_sd import convert_to_sd
 
@@ -191,7 +191,6 @@ if __name__ == "__main__":
     merkle_tree = build_merkle_tree(frames_hash_values)
     
     print(merkle_tree[0][0])
-    
     # Step 5
     # sign_and_commit(merkle_tree[0][0])
 
