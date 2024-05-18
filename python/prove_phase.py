@@ -1,20 +1,13 @@
 # This code converts video file to its frames and save the selected range of them (start-end).
 import os
-import shutil
 import json
 
 import tkinter as tk
 from tkinter import filedialog
 
-import cv2
-import numpy as np
-from PIL import Image
-
 from utils.calc_merkle_path import calc_merkle_path
-from utils.poseidon import frames_hash
 from utils.convert_to_sd import convert_to_sd
-from utils.video_edit import grayscale_video, resize_video, trim
-from utils.json_helper import compress
+from utils.video_edit import trim
 
 
 def get_video_path():
@@ -59,14 +52,43 @@ if __name__ == "__main__":
     
     # Create inputs for Nova prover
     merkle_file = 'tree.json'
+    prev_hash, leaf_start, merkle_path_start, positions_start = calc_merkle_path(merkle_file, start_frame)
+    _, leaf_end, merkle_path_end, positions_end = calc_merkle_path(merkle_file, end_frame)
     general_json = {
         # "height": height,
         "frames": total_frames,
-        "path_start": calc_merkle_path(merkle_file, start_frame),
-        "path_end": calc_merkle_path(merkle_file, end_frame),
+        "prev_hash": [
+            int(prev_hash[48:], 16),
+            int(prev_hash[32:47], 16),
+            int(prev_hash[16:32], 16),
+            int(prev_hash[:15], 16),
+            ],
+    }
+
+    path_json = {
+        "levels": len(merkle_path_start),
+        "path_elements_start": merkle_path_start,
+        "path_indices_start": positions_start,
+        "leaf_start": [
+            int(leaf_start[48:], 16),
+            int(leaf_start[32:47], 16),
+            int(leaf_start[16:32], 16),
+            int(leaf_start[:15], 16),
+            ],
+        "path_elements_end": merkle_path_end,
+        "path_indices_end": positions_end,
+        "leaf_end": [
+            int(leaf_end[48:], 16),
+            int(leaf_end[32:47], 16),
+            int(leaf_end[16:32], 16),
+            int(leaf_end[:15], 16),
+            ],
     }
     with open(f"{output_path}/general.json", 'w') as fp:
         json.dump(general_json, fp, indent=4)
+
+    with open(f"{output_path}/path.json", 'w') as fp:
+        json.dump(path_json, fp, indent=4)
 
     # for i in range(total_frames):
     #     relative_image_path = output_path + f"/frame_{i}.jpg"

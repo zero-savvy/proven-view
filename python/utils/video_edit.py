@@ -137,5 +137,5 @@ def trim(input_video_path, start_time, end_time, output_path, output_video_path)
     # Write the video to a file
     video_clip.write_videofile(output_video_path, codec='libx264')   # Create a video clip from the processed frames
 
-    return start_frame, end_frame, total_frames
+    return start_frame, end_frame, end_frame - start_frame + 1
 

@@ -38,6 +38,13 @@ def calc_merkle_path(tree_path, leaf_index: int):
     
     print(f"Merkle Path for leaf index {leaf_index}: {merkle_path}, {positions}")
 
+    if leaf_index > 0: 
+        prev_hash = merkle_tree[-1][leaf_index-1][2:].zfill(64)
+    else:
+        prev_hash = "00" * 32
+    
+    return prev_hash, merkle_tree[-1][leaf_index][2:].zfill(64), \
+        merkle_path, positions
 
 if __name__ == "__main__":
     get_merkle_path(3, 'tree.json')
