@@ -1,5 +1,6 @@
 import os
 import shutil
+import json
 
 import cv2
 import numpy as np
@@ -85,6 +86,19 @@ def grayscale_video(input_video_path, output_video_path):
     return gray_array, clip.fps
 
 
+def pixel_to_array(image_in):
+    array_in = image_in.tolist()
+    output_array = []
+
+    for i in range(0, len(array_in)):
+        row = []
+        hexValue = ''
+        for j in range(0, len(array_in[i])):
+            row.append(["0x" + hex(int(array_in[i][j][k]))[2:].zfill(2) for k in range(0, 3)])
+        output_array.append(row)
+    return output_array
+
+
 def trim(input_video_path, start_time, end_time, output_path, output_video_path):
 
     if os.path.exists(output_path):
@@ -108,21 +122,29 @@ def trim(input_video_path, start_time, end_time, output_path, output_video_path)
     
     # Process each frame of the video
     processed_frames = []
-    original_frames = []
+    # original_frames = []
     for i, frame in enumerate(clip.iter_frames(dtype="uint8")):
         if i < start_frame:
             continue
         if i > end_frame:
             break
-        image = Image.fromarray(frame)
-        original_frames.append(frame)
-        processed_frames.append(image)
+        # image = Image.fromarray(frame)
+        processed_frames.append(frame)
+        # processed_frames.append(image)
 
-        frame_output_path = os.path.join(output_path, f"frame_{i-start_frame}.jpg")
-        cv2.imwrite(frame_output_path, frame)
+        frame_output_path = os.path.join(output_path, f"frame_{i-start_frame}.json")
+        # cv2.imwrite(frame_output_path, frame)
+
+        frame_data = {
+            "orig": pixel_to_array(frame),
+        }
+        with open(frame_output_path, 'w') as fp:
+            json.dump(frame_data, fp, indent=4)
+        # os.unlink(image_path)
+
 
     # Create a video from the processed frames
-    video_clip = ImageSequenceClip([frame for frame in original_frames], fps=clip.fps)
+    video_clip = ImageSequenceClip([frame for frame in processed_frames], fps=clip.fps)
 
     # Write the video to a file
     video_clip.write_videofile(output_video_path, codec='libx264')   # Create a video clip from the processed frames
