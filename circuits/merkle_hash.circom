@@ -39,6 +39,9 @@ template MerkleHash() {
     lastDual.s <== lastPathSel;
     lastHash.inputs <== lastDual.out;
     step_out[1] <== lastHash.out;
+
+    log(step_in[0]);
+    log(step_in[1]);
 }
 
 component main {public [step_in]} = MerkleHash();

@@ -27,7 +27,7 @@ struct PathInput {
 
 #[derive(Deserialize)]
 struct FrameInput {
-    orig: Vec<Vec<Vec<String>>>,
+    compressed: Vec<String>,
 }
 
 fn fold_fold_fold(proof_type: String,
@@ -83,7 +83,7 @@ fn fold_fold_fold(proof_type: String,
                 let input_data: FrameInput = serde_json::from_str(&input_file_json_string).expect("Deserialization failed");
 
                 let mut private_input = HashMap::new();
-                private_input.insert("orig".to_string(), json!(input_data.orig));
+                private_input.insert("compressed".to_string(), json!(input_data.compressed));
                 private_inputs.push(private_input);
             }
 

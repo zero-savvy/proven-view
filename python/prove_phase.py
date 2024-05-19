@@ -7,7 +7,7 @@ from tkinter import filedialog
 
 from utils.calc_merkle_path import calc_merkle_path
 from utils.convert_to_sd import convert_to_sd
-from utils.video_edit import trim
+from utils.video_edit import trim_grc
 
 
 def get_video_path():
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     convert_to_sd(video_path, sd_video, 30)
 
     # Trim the video
-    start_frame, end_frame, total_frames =  trim(sd_video, start_time, end_time, output_path, trimmed_video)
+    start_frame, end_frame, total_frames =  trim_grc(sd_video, start_time, end_time, output_path, trimmed_video)
     
     # # Step 2
     # tmp, fps = grayscale_video(trimmed_video, gray_video)
