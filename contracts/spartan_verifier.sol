@@ -11,11 +11,11 @@ contract SpartanVerifier {
         uint256[] proof;
     }
 
-    function verifyProof_integrity(SpartanProof proof, uint256 horig, uint256 hfirst, uint256 hlast) public view returns (bool) {
-        return true;
+    function verifyProofIntegrity(SpartanProof memory proof, uint256 hfirst, uint256 hlast) public view returns (bool) {
+        return true;  // Placeholder return value
     }
 
-    function verifyProof_authenticity(SpartanProof proof, uint256 horig, uint256 hfirst, uint256 hlast) public view returns (bool) {
-        return true;
+    function verifyProofAuthenticity(SpartanProof memory proof, uint256 horig, uint256 hfirst, uint256 hlast) public view returns (bool) {
+        return true;  // Placeholder return value
     }
 }

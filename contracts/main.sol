@@ -44,11 +44,11 @@ contract MediaAuthenticator {
 
             
         // verify zkSNARK proof
-        proofVerification_order = verifier.verifyProof_integrity(data.integrity_proof, data.hOrig, data.hFirst, data.hLast);
+        proofVerification_order = verifier.verifyProofIntegrity(data.integrity_proof, data.hFirst, data.hLast);
         require(proofVerification_order, "Incorrect Order Proof!");
 
         // verify zkSNARK proof
-        proofVerification_path = verifier.verifyProof_authenticity(data.authenticity_proof, data.hOrig, data.hFirst, data.hLast);
+        proofVerification_path = verifier.verifyProofAuthenticity(data.authenticity_proof, data.hOrig, data.hFirst, data.hLast);
         require(proofVerification_path, "Incorrect Path Proof!");
 
         h_orig = data.hOrig;
@@ -56,7 +56,7 @@ contract MediaAuthenticator {
         h_trim_last = data.hLast;
 
 
-        address recovered_signer = ECDSA.recover(h_orig, sig_alpha);
+        address recovered_signer = keccack256(h_orig).toEthSignedMessageHash().recover(sig_alpha)
 
         if (verifiedOriginals[h_orig] == 0) {
             require(verifiedPubkeys[recovered_signer] != 0,
