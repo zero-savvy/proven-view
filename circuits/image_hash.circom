@@ -140,11 +140,6 @@ template GrayScaleHash(width, height){
     step_out <== final_hash.out;
     // log(step_out);
 
-    log("----------------");
-    log(step_in);
-    log(step_out);
-
-
 }
 
 
