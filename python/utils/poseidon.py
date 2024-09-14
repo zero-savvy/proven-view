@@ -1,6 +1,8 @@
 import subprocess
 import json
 import os
+from tqdm import tqdm
+
 
 def poseidon(num1: str, num2: str):
     input_data = {
@@ -36,14 +38,12 @@ def poseidon(num1: str, num2: str):
 
 def frames_hash(frames: list):
     frames_hash_values = []
-    for i, frame in enumerate(frames):
-        for j in range(1, len(frame)):
-            frame[0] = poseidon(frame[0],frame[j])
-        if i == 0:
-            prev_hash = "0x00"
-        else:
-            prev_hash = frames_hash_values[-1]
-        frames_hash_values.append(poseidon(prev_hash, frame[0]))
+    hash_val = "0x00"
+    for i in tqdm(range(len(frames))):
+        for y in range(len(frames[i])):
+            for x in range(len(frames[i][y])):
+                hash_val = poseidon(hash_val,frames[i][y][x])
+        frames_hash_values.append(hash_val)
     return frames_hash_values
     
 

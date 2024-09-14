@@ -223,7 +223,7 @@ fn fold_fold_fold(proof_type: String,
 
 fn main() {
     let matches = App::new("provenview")
-        .version("v0.1.0")
+        .version("v1.0.0")
         .author("Zero-Savvy")
         .about("Prove the truthfulness of your media!")
         .arg(

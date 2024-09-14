@@ -8,14 +8,9 @@ from tkinter import filedialog
 import matplotlib.pyplot as plt
 from utils.poseidon import frames_hash
 from utils.merkle import build_merkle_tree
-from utils.convert_to_sd import convert_to_sd
-from utils.video_edit import grayscale_resize_compress
+from utils.video import get_video_path, convert_set_frames
+from utils.video_edit import compress_frames
 
-def get_video_path():
-    root = tk.Tk()
-    root.withdraw()
-    file_path = filedialog.askopenfilename()
-    return file_path
 
 def plot_images_side_by_side_auto_size(np_image1, np_image2):
     """
@@ -59,13 +54,13 @@ def plot_images_side_by_side_auto_size(np_image1, np_image2):
 if __name__ == "__main__":
     # Example usage
     video_path = get_video_path()
-    output_video = 'output_video_sd.mp4'
+    output_video = 'fixed_frame_rate.mp4'
 
     # Step 1
-    convert_to_sd(video_path, output_video, 30)             # 640 * 480
+    convert_set_frames(video_path, output_video, 1) 
     
     # Step 2
-    out = grayscale_resize_compress(output_video)
+    out = compress_frames(output_video)
 
     # Step 3
     frames_hash_values = frames_hash(out)
