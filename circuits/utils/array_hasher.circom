@@ -13,18 +13,18 @@ template Hasher(inputSize) {
 }
 
 
-template RowHasher (width) {
-    signal input img[width];
+template ArrayHasher (size) {
+    signal input data[size];
     signal output hash;
 
-    component hasher[width-1];
+    component hasher[size-1];
 
-    for(var i=0; i < width-1; i++) {
+    for(var i=0; i < size-1; i++) {
         hasher[i] = Hasher(2);
-        hasher[i].values[0] <== i == 0 ? img[0] : hasher[i-1].hash;
-        hasher[i].values[1] <== img[i+1];
+        hasher[i].values[0] <== i == 0 ? data[0] : hasher[i-1].hash;
+        hasher[i].values[1] <== data[i+1];
     }
 
-    hash <== hasher[width-2].hash;
+    hash <== hasher[size-2].hash;
 
 }
