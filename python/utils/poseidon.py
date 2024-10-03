@@ -45,7 +45,21 @@ def frames_hash(frames: list):
                 hash_val = poseidon(hash_val,frames[i][y][x])
         frames_hash_values.append(hash_val)
     return frames_hash_values
+
+def integrity_frames_hash(prev_hash_val, frame_data: list):
+    hash_val = prev_hash_val
+    for i in tqdm(range(len(frame_data))):
+        hash_val = poseidon(hash_val,frame_data[i])
+    return hash_val
     
+def frame_hashes(frames: list):
+    frames_hash_values = []
+    hash_val = "0x00"
+    for i in tqdm(range(len(frames))):
+        for y in range(len(frames[i])):
+            hash_val = poseidon(hash_val,frames[i][y])
+        frames_hash_values.append(hash_val)
+    return frames_hash_values
 
 
 if __name__ == "__main__":
