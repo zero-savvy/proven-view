@@ -39,12 +39,14 @@ if __name__ == "__main__":
         json.dump(prev_hash_value, mkf, indent=4)
     #Step #2: Calculating Merkle tree leaves and writing them in file
     # frames_hash_values = frame_hashes(frames_data)
-    with open("tree.json", 'w') as fp:
-        json.dump(frames_hash_values, fp, indent=4)
-
+    
     # Step #3: Building Merkle tree
     merkle_tree = build_merkle_tree(frames_hash_values)
     print("Merkle root of the commited video:", merkle_tree[0][0])
+
+    with open("Merkle_tree.json", 'w') as fp:
+        json.dump(merkle_tree, fp, indent=4)
+
 
     # Step #4: Writing Merkle Root Hash in file
     merkle_file = 'root.json'
