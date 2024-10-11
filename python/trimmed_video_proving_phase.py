@@ -96,7 +96,8 @@ print(end_frame_index)
 output_folder = 'trimmed_frames'
 os.makedirs(output_folder, exist_ok=True) 
 trim_video(input_video, output_folder, start_frame_index, end_frame_index)
-
+# get the Merkle tree file path
+print("select Merkle tree file ...")
 merkle_file = get_video_path()
 prev_hash, leaf_start, merkle_path_start, positions_start = calc_merkle_path(merkle_file, start_frame_index)
 _, leaf_end, merkle_path_end, positions_end = calc_merkle_path(merkle_file, end_frame_index)
