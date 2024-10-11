@@ -85,12 +85,12 @@ fn fold_fold_fold(proof_type: String,
 
                 if hash_per_step.parse::<i32>().unwrap() > 1 {   
                     let mut private_input = HashMap::new();
-                    private_input.insert("compressed".to_string(), json!(input_data.compressed));
+                    private_input.insert("data".to_string(), json!(input_data.compressed));
                     private_inputs.push(private_input);
                 } else {
                     for j in 0..input_data.compressed.len() {
                         let mut private_input = HashMap::new();
-                        private_input.insert("compressed".to_string(), json!(input_data.compressed[j]));
+                        private_input.insert("data".to_string(), json!(input_data.compressed[j]));
                         private_inputs.push(private_input);
                     }
                 }
