@@ -35,7 +35,8 @@ fn fold_fold_fold(proof_type: String,
             circuit_filepath: String,
             witness_gen_filepath: String,
             output_file_path: String,
-            input_folder_path: String
+            input_folder_path: String,
+            hash_per_step: String
         ) {
     type G1 = pasta_curves::pallas::Point;
     type G2 = pasta_curves::vesta::Point;
@@ -246,6 +247,15 @@ fn main() {
             .possible_values(&["integrity", "authenticity"])
         )
         .arg(
+            Arg::with_name("hps")
+            .required(true)
+            .short("h")
+            .long("input")
+            .value_name("HASH PER STEP")
+            .help("Number of hashes to be proven per step.")
+            .takes_value(true)
+        )
+        .arg(
             Arg::with_name("output")
             .required(true)
             .short("o")
@@ -290,6 +300,7 @@ fn main() {
     let input_filepath = matches.value_of("input").unwrap();
     let proof_type = matches.value_of("proof").unwrap();
     let selected_function = matches.value_of("function").unwrap();
+    let hash_per_step = matches.value_of("hps").unwrap();
 
     println!(" ________________________________________________________");
     println!(" ____                          __     ___               ");
@@ -302,6 +313,7 @@ fn main() {
     println!("| Input file: {}", input_filepath);
     println!("| Ouput file: {}", output_filepath);
     println!("| Selected function: {}", selected_function);
+    println!("| Hash per step: {}", hash_per_step);
     println!("| Circuit file: {}", circuit_filepath);
     println!("| Witness generator: {}", witness_gen_filepath);
     println!(" ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾");
@@ -312,7 +324,8 @@ fn main() {
                 circuit_filepath.to_string().clone(),
                 witness_gen_filepath.to_string(),
                 output_filepath.to_string(),
-                input_filepath.to_string()
+                input_filepath.to_string(),
+                hash_per_step.to_string()
             );
 
 }

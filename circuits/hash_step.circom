@@ -26,4 +26,4 @@ template HashStep(n){
     step_out <== hasher.hash;    
 }
 
-component main { public [step_in] } = HashStep(128);
+component main { public [step_in] } = HashStep(1);
