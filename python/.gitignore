@@ -1,2 +1,3 @@
 *.mp4
 out_frames/
+*.json
