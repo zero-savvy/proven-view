@@ -27,7 +27,7 @@ struct PathInput {
 
 #[derive(Deserialize)]
 struct FrameInput {
-    compressed: Vec<String>,
+    witness: Vec<String>,
 }
 
 fn fold_fold_fold(proof_type: String,
@@ -67,43 +67,43 @@ fn fold_fold_fold(proof_type: String,
     input_file.read_to_string(&mut input_file_json_string).expect("Unable to read from the file");
 
     let mut iteration_count = 0;
-    let mut actual_iteration_count = 0;
 
     if selected_function == "trim" {
 
         if proof_type == "integrity" {
+            let hps = hash_per_step.parse::<usize>().unwrap();
             let input_data: GeneralInput = serde_json::from_str(&input_file_json_string).expect("Deserialization failed");
-            iteration_count = input_data.frames;
-            if hash_per_step.parse::<i32>().unwrap() > 1 {
-                actual_iteration_count = iteration_count;
-            }
             start_public_input.push(F::<G1>::from_raw(input_data.prev_hash));
             // start_public_input.push(F::<G1>::from(input_data.info));  // x|y|index
+            let mut witness_file = File::open(input_folder_path.clone() + "/witness_data.json").expect("Failed to open the file");
+            let mut witness_file_str = String::new();
+            witness_file.read_to_string(&mut witness_file_str).expect("Unable to read from the file");
+            let mut witness_data: FrameInput = serde_json::from_str(&witness_file_str).expect("Deserialization failed");
+            iteration_count = witness_data.witness.len();
+            println!("iteration_count: {:?}", iteration_count);
+            if hps > 1 {
+                iteration_count /= hps;
+                if iteration_count % hps != 0 {
+                    for ii in 0..(iteration_count % hps) {
+                        witness_data.witness.push("0x00".to_string());
+                    }
+                    iteration_count += 1;
+                }
+            }
             for i in 0..iteration_count {
-                let mut input_file = File::open(input_folder_path.clone() + "/frame_" + i.to_string().as_str() + ".json").expect("Failed to open the file");
-                let mut input_file_json_string = String::new();
-                input_file.read_to_string(&mut input_file_json_string).expect("Unable to read from the file");
-
-                let input_data: FrameInput = serde_json::from_str(&input_file_json_string).expect("Deserialization failed");
+                let mut private_input = HashMap::new();
 
                 if hash_per_step.parse::<i32>().unwrap() > 1 {   
-                    let mut private_input = HashMap::new();
-                    private_input.insert("data".to_string(), json!(input_data.compressed));
-                    private_inputs.push(private_input);
+                    private_input.insert("data".to_string(), json!(witness_data.witness[i..i+hps]));
                 } else {
-                    actual_iteration_count += input_data.compressed.len();
-                    for j in 0..input_data.compressed.len() {
-                        let mut private_input = HashMap::new();
-                        private_input.insert("data".to_string(), json!(input_data.compressed[j]));
-                        private_inputs.push(private_input);
-                    }
+                    private_input.insert("data".to_string(), json!(witness_data.witness[i]));
                 }
+                private_inputs.push(private_input);
             }
 
         } else {
             let input_data: PathInput = serde_json::from_str(&input_file_json_string).expect("Deserialization failed");
             iteration_count = input_data.levels;
-            actual_iteration_count = iteration_count;
             start_public_input.push(F::<G1>::from_raw(input_data.leaf_start));
             start_public_input.push(F::<G1>::from_raw(input_data.leaf_end));
             // start_public_input.push(F::<G1>::from(input_data.info));  // x|y|index
@@ -175,7 +175,7 @@ fn fold_fold_fold(proof_type: String,
     // verify the recursive SNARK
     println!("Verifying a RecursiveSNARK...");
     let start = Instant::now();
-    let res = recursive_snark.verify(&pp, actual_iteration_count, &start_public_input, &z0_secondary);
+    let res = recursive_snark.verify(&pp, iteration_count, &start_public_input, &z0_secondary);
     println!(
         "RecursiveSNARK::verify: {:?}, took {:?}",
         res,
@@ -223,7 +223,7 @@ fn fold_fold_fold(proof_type: String,
     let start = Instant::now();
     let res = compressed_snark2.verify(
         &vk,
-        actual_iteration_count,
+        iteration_count,
         start_public_input.to_vec(),
         z0_secondary.to_vec(),
     );
@@ -246,7 +246,7 @@ fn main() {
             .short("i")
             .long("input")
             .value_name("FILE")
-            .help("The JSON file containing the original and the transformed image data to verify.")
+            .help("The JSON file containing the original and the transformed video data to verify.")
             .takes_value(true)
         )
         .arg(
@@ -263,7 +263,7 @@ fn main() {
             Arg::with_name("hps")
             .required(true)
             .short("h")
-            .long("input")
+            .long("hps")
             .value_name("HASH PER STEP")
             .help("Number of hashes to be proven per step.")
             .takes_value(true)
