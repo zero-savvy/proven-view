@@ -101,4 +101,8 @@ print("select Merkle tree file ...")
 merkle_file = get_video_path()
 prev_hash, leaf_start, merkle_path_start, positions_start = calc_merkle_path(merkle_file, start_frame_index)
 _, leaf_end, merkle_path_end, positions_end = calc_merkle_path(merkle_file, end_frame_index)
+merkle_path_file = "path.json"
+with open(merkle_path_file, 'w') as f:
+    json.dump({"prev_hash": prev_hash, "leaf_start": leaf_start, "merkle_path_start": merkle_path_start, "positions_start": positions_start,
+               "leaf_end": leaf_end, "merkle_path_end": merkle_path_end, "positions_end": positions_end}, f, indent=2)
 
