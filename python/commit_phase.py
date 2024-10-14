@@ -1,4 +1,5 @@
 # This code calculate the hash of the input video, generate Merkle tree, and Merkle root.
+import os
 import json
 
 import av
@@ -34,8 +35,10 @@ if __name__ == "__main__":
             frames_hash_values.append(prev_hash_value)  
     
     # Step #1: writing the intergrity(chained) hash in the file.
-    integrity_file = 'integrity_hash.json'
-    with open(integrity_file, 'w') as mkf:
+    output_folder = 'output'
+    os.makedirs(output_folder, exist_ok=True) 
+    integrity_file = '/integrity_hash.json'
+    with open(output_folder+integrity_file, 'w') as mkf:
         json.dump(prev_hash_value, mkf, indent=4)
     #Step #2: Calculating Merkle tree leaves and writing them in file
     # frames_hash_values = frame_hashes(frames_data)
@@ -44,13 +47,13 @@ if __name__ == "__main__":
     merkle_tree = build_merkle_tree(frames_hash_values)
     print("Merkle root of the commited video:", merkle_tree[0][0])
 
-    with open("Merkle_tree.json", 'w') as fp:
+    with open(output_folder+"/Merkle_tree.json", 'w') as fp:
         json.dump(merkle_tree, fp, indent=4)
 
 
     # Step #4: Writing Merkle Root Hash in file
-    merkle_file = 'root.json'
-    with open(merkle_file, 'w') as mkf:
+    merkle_file = '/root.json'
+    with open(output_folder+merkle_file, 'w') as mkf:
         json.dump(merkle_tree[0][0], mkf, indent=4)
 
     # Step #5

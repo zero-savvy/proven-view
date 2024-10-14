@@ -23,7 +23,7 @@ if __name__ == "__main__":
     start_time = int(input("Enter start frame (this frame will include): ") or "0")
     end_time = int(input("Enter end frame (this frame will include): ") or "1")
     
-    output_path = "out_frames"
+    output_path = "output"
     trimmed_video = 'trimmed_video.mp4'
     # sd_video = 'sd_video.mp4'
     # gray_video = 'gray_video.mp4'
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     current_directory = os.getcwd()
     
     # Create inputs for Nova prover
-    merkle_file = 'tree.json'
+    merkle_file = output_path + '/Merkle_tree.json'
     prev_hash, leaf_start, merkle_path_start, positions_start = calc_merkle_path(merkle_file, start_frame)
     _, leaf_end, merkle_path_end, positions_end = calc_merkle_path(merkle_file, end_frame)
     general_json = {

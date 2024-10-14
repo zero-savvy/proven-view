@@ -52,8 +52,8 @@ def save_frames_as_raw(video_path, output_folder):
             with open(f"{output_folder}/frame_{frame_index}.json", 'w') as f:
                 binary_data = bytes(packet)
                 write_content = {"witness": []}
-                for i in range(0, len(binary_data), 30):  # 32 bytes == 256 bits
-                    chunk = binary_data[i:i+30]
+                for i in range(0, len(binary_data), 31):  # 32 bytes == 256 bits
+                    chunk = binary_data[i:i+31]
                     hex_chunk = chunk.hex()  # Convert bytes to hex
                     write_content["witness"].append(hex_chunk)
                 json.dump(write_content, f, indent=2)
