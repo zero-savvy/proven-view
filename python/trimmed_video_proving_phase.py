@@ -93,16 +93,49 @@ end_frame_index = time_to_frame_index(end_time, fps)
 print(fps)
 print(start_frame_index)
 print(end_frame_index)
-output_folder = 'trimmed_frames'
-os.makedirs(output_folder, exist_ok=True) 
-trim_video(input_video, output_folder, start_frame_index, end_frame_index)
+output_path = 'output'
+os.makedirs(output_path, exist_ok=True) 
+trim_video(input_video, output_path, start_frame_index, end_frame_index)
 # get the Merkle tree file path
 print("select Merkle tree file ...")
-merkle_file = get_video_path()
+merkle_file = output_path + '/Merkle_tree.json'
 prev_hash, leaf_start, merkle_path_start, positions_start = calc_merkle_path(merkle_file, start_frame_index)
 _, leaf_end, merkle_path_end, positions_end = calc_merkle_path(merkle_file, end_frame_index)
-merkle_path_file = "path.json"
-with open(merkle_path_file, 'w') as f:
-    json.dump({"prev_hash": prev_hash, "leaf_start": leaf_start, "merkle_path_start": merkle_path_start, "positions_start": positions_start,
-               "leaf_end": leaf_end, "merkle_path_end": merkle_path_end, "positions_end": positions_end}, f, indent=2)
+
+general_json = {
+    # "height": height,
+    "frames": end_frame_index - start_frame_index + 1,
+    "prev_hash": [
+        int(prev_hash[48:], 16),
+        int(prev_hash[32:48], 16),
+        int(prev_hash[16:32], 16),
+        int(prev_hash[:16], 16),
+        ],
+}
+
+path_json = {
+    "levels": len(merkle_path_start),
+    "path_elements_start": merkle_path_start,
+    "path_indices_start": positions_start,
+    "leaf_start": [
+        int(leaf_start[48:], 16),
+        int(leaf_start[32:48], 16),
+        int(leaf_start[16:32], 16),
+        int(leaf_start[:16], 16),
+        ],
+    "path_elements_end": merkle_path_end,
+    "path_indices_end": positions_end,
+    "leaf_end": [
+        int(leaf_end[48:], 16),
+        int(leaf_end[32:48], 16),
+        int(leaf_end[16:32], 16),
+        int(leaf_end[:16], 16),
+        ],
+}
+with open(f"{output_path}/general.json", 'w') as fp:
+    json.dump(general_json, fp, indent=4)
+
+with open(f"{output_path}/path.json", 'w') as fp:
+    json.dump(path_json, fp, indent=4)
+
 
