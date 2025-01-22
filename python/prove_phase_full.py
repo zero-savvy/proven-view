@@ -5,7 +5,7 @@ import json
 import tkinter as tk
 from tkinter import filedialog
 
-from utils.calc_merkle_path import calc_merkle_path
+from utils.calc_merkle_path import calc_merkle_path, prep_folding_input
 from utils.video_edit import trim
 
 
@@ -20,8 +20,9 @@ if __name__ == "__main__":
     
     video_path = get_video_path()
     print('start ...')
-    start_time = int(input("Enter start frame (this frame will include): ") or "0")
-    end_time = int(input("Enter end frame (this frame will include): ") or "1")
+    sub_tree_size = int(input("Enter sub tree size: ") or "64")
+    start_time = int(input("Enter start frame (this frame will be included): ") or "0")
+    end_time = int(input("Enter end frame (this frame will be included): ") or "1")
     
     output_path = "output"
     trimmed_video = 'trimmed_video.mp4'
@@ -97,3 +98,6 @@ if __name__ == "__main__":
         # compressed_original_image = compress_image(output_path)
     print("Generated inputs for Nova successfully at directory: ./" + output_path + "/")
     
+    folding_tree_input = prep_folding_input(merkle_file, sub_tree_size)
+    with open(f"{output_path}/folding_tree_input.json", 'w') as fp:
+        json.dump(folding_tree_input, fp, indent=4)
