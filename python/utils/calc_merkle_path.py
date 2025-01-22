@@ -48,12 +48,23 @@ def calc_merkle_path(tree_file_path, leaf_index: int):
         merkle_path, positions
 
 def prep_folding_input(tree_file_path, sub_tree_size: int):
-    
-    # leaves, path_indices, path_elements
-    inputs = []
 
     # Read the Merkle tree from the file
     merkle_tree = read_merkle_tree(tree_file_path)
+    root = merkle_tree[0][0][2:].zfill(64)
+    
+    # leaves, path_indices, path_elements
+    inputs = {
+            "leaves": [], 
+            "path_indices":[],
+            "path_elements":[],
+            "root": [
+            int(root[48:], 16),
+            int(root[32:48], 16),
+            int(root[16:32], 16),
+            int(root[:16], 16),
+            ]
+        }
 
     upper_sub_tree = merkle_tree[ : len(merkle_tree) - int(log2(sub_tree_size))]
     
@@ -61,13 +72,9 @@ def prep_folding_input(tree_file_path, sub_tree_size: int):
         
         # Get the Merkle path
         merkle_path, positions = get_merkle_path(upper_sub_tree, i)
-        inputs.append({
-            "leaves": merkle_tree[-1][ i*sub_tree_size : (i+1)*sub_tree_size ], 
-            "path_indices":positions,
-            "path_elements":merkle_path,
-            "prev_hash": "0x" + merkle_tree[-1][i*sub_tree_size-1][2:].zfill(64) if i > 0 else "00" * 32
-        })
-    
+        inputs["leaves"].append( merkle_tree[-1][ i*sub_tree_size : (i+1)*sub_tree_size ])
+        inputs["path_indices"].append(positions)
+        inputs["path_elements"].append(merkle_path)
     return inputs
     
 

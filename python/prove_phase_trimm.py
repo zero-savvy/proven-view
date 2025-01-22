@@ -97,7 +97,3 @@ if __name__ == "__main__":
             
         # compressed_original_image = compress_image(output_path)
     print("Generated inputs for Nova successfully at directory: ./" + output_path + "/")
-    
-    folding_tree_input = prep_folding_input(merkle_file, sub_tree_size)
-    with open(f"{output_path}/folding_tree_input.json", 'w') as fp:
-        json.dump(folding_tree_input, fp, indent=4)
