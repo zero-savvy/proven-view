@@ -8,6 +8,8 @@ from tkinter import filedialog
 from utils.calc_merkle_path import calc_merkle_path, prep_folding_input
 from utils.video_edit import trim
 
+from moviepy.editor import VideoFileClip
+
 
 def get_video_path():
     root = tk.Tk()
@@ -21,8 +23,8 @@ if __name__ == "__main__":
     video_path = get_video_path()
     print('start ...')
     sub_tree_size = int(input("Enter sub tree size: ") or "64")
-    start_time = int(input("Enter start frame (this frame will be included): ") or "0")
-    end_time = int(input("Enter end frame (this frame will be included): ") or "1")
+    start_frame = int(input("Enter start frame (this frame will be included): ") or "0")
+    end_frame = int(input("Enter end frame (this frame will be included): ") or "1")
     
     output_path = "output"
     trimmed_video = 'trimmed_video.mp4'
@@ -34,7 +36,25 @@ if __name__ == "__main__":
     # convert_to_sd(video_path, sd_video, 30)
 
     # Trim the video
-    start_frame, end_frame, total_frames =  trim(video_path, start_time, end_time, output_path, trimmed_video)
+    # start_frame, end_frame, total_frames =  trim(video_path, start_time, end_time, output_path, trimmed_video)
+    clip = VideoFileClip(video_path)
+
+    total_frames = 0
+    # We use this method instead of List.count to prevent large memory allocation!
+    for i in clip.iter_frames(dtype="uint8"):
+        total_frames += 1
+
+    # start_frame = int(start_time * clip.fps)
+    # end_frame = min(int(end_time * clip.fps), total_frames)
+    end_frame = min(end_frame, total_frames)
+    assert start_frame < end_frame, "Start frame should be less that end frame"
+    assert end_frame < total_frames, "End frame should be less than total frames"
+    
+    # Process each frame of the video
+    # processed_frames = []
+    # original_frames = []
+
+    # print (f"START FRAME: {start_frame}, END FRAME: {end_frame}")
     
     # # Step 2
     # tmp, fps = grayscale_video(trimmed_video, gray_video)
