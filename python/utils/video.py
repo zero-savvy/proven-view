@@ -1,13 +1,14 @@
 # This code converts videos with every resolution to SD, and resize the video with your target fps.
-import tkinter as tk
-from tkinter import filedialog
+# import tkinter as tk
+# from tkinter import filedialog
 from moviepy.editor import VideoFileClip
 
 
 def get_video_path():
-    root = tk.Tk()
-    root.withdraw()
-    file_path = filedialog.askopenfilename()
+    # root = tk.Tk()
+    # root.withdraw()
+    # file_path = filedialog.askopenfilename()
+    file_path = '../samples/security-camera.mp4'
     return file_path
 
 

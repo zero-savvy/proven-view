@@ -5,7 +5,7 @@ import json
 import av
 from tqdm import tqdm
 
-from utils.poseidon import integrity_frames_hash
+from utils.poseidon import integrity_frames_hash, poseidon
 from utils.merkle import build_merkle_tree
 from utils.video import get_video_path
 
@@ -31,8 +31,13 @@ if __name__ == "__main__":
                 chunk = binary_data[i:i+31]
                 hex_chunk = chunk.hex()  # Convert bytes to hex
                 frame_data.append("0x" + str(hex_chunk))  # Save the values in string form
-            prev_hash_value = integrity_frames_hash(prev_hash_value, frame_data)
+            # prev_hash_value = integrity_frames_hash(prev_hash_value, frame_data) 
+            if len(frame_data) > 0:
+                prev_hash_value = poseidon(prev_hash_value, frame_data[0])
             frames_hash_values.append(prev_hash_value)  
+    
+    # while len(frames_hash_values) < 2**15:   ## this is for synthetic data generation 
+    #     frames_hash_values.append(frames_hash_values[0])
     
     # Step #1: writing the intergrity(chained) hash in the file.
     output_folder = 'output'
@@ -46,7 +51,7 @@ if __name__ == "__main__":
     # Step #3: Building Merkle tree
     merkle_tree = build_merkle_tree(frames_hash_values)
     print("Merkle root of the commited video:", merkle_tree[0][0])
-
+    
     with open(output_folder+"/Merkle_tree.json", 'w') as fp:
         json.dump(merkle_tree, fp, indent=4)
 

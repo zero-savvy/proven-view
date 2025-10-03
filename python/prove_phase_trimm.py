@@ -2,17 +2,18 @@
 import os
 import json
 
-import tkinter as tk
-from tkinter import filedialog
+# import tkinter as tk
+# from tkinter import filedialog
 
 from utils.calc_merkle_path import calc_merkle_path, prep_folding_input
 from utils.video_edit import trim
 
 
 def get_video_path():
-    root = tk.Tk()
-    root.withdraw()
-    file_path = filedialog.askopenfilename()
+    # root = tk.Tk()
+    # root.withdraw()
+    # file_path = filedialog.askopenfilename()
+    file_path = '../samples/security-camera.mp4'
     return file_path
 
 

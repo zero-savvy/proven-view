@@ -13,7 +13,7 @@ imageio-ffmpeg==0.4.9
 kiwisolver==1.4.5
 matplotlib==3.8.1
 moviepy==1.0.3
-numpy==1.25.1
+numpy==1.26.4
 opencv-python==4.9.0.80
 packaging==23.2
 pillow==10.3.0
@@ -28,3 +28,4 @@ tqdm==4.66.4
 urllib3==2.2.1
 eth-account
 web3
+setuptools

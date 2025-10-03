@@ -44,4 +44,4 @@ template MerkleFoldStep(subTreeLevels, pathLength){
     step_out[1] <== hasher.hash;    
 }
 
-component main { public [step_in] } = MerkleFoldStep(7, 3);
+component main { public [step_in] } = MerkleFoldStep(7, 8);

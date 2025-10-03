@@ -2,8 +2,8 @@
 import os
 import json
 
-import tkinter as tk
-from tkinter import filedialog
+# import tkinter as tk
+# from tkinter import filedialog
 
 from utils.calc_merkle_path import calc_merkle_path, prep_folding_input
 from utils.video_edit import trim
@@ -12,9 +12,10 @@ from moviepy.editor import VideoFileClip
 
 
 def get_video_path():
-    root = tk.Tk()
-    root.withdraw()
-    file_path = filedialog.askopenfilename()
+    # root = tk.Tk()
+    # root.withdraw()
+    # file_path = filedialog.askopenfilename()
+    file_path = '../samples/security-camera.mp4'
     return file_path
 
 
@@ -47,7 +48,7 @@ if __name__ == "__main__":
     # start_frame = int(start_time * clip.fps)
     # end_frame = min(int(end_time * clip.fps), total_frames)
     end_frame = min(end_frame, total_frames)
-    assert start_frame < end_frame, "Start frame should be less that end frame"
+    assert start_frame < end_frame, "Start frame should be less than end frame"
     assert end_frame < total_frames, "End frame should be less than total frames"
     
     # Process each frame of the video

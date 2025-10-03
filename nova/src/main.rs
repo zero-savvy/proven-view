@@ -43,7 +43,8 @@ fn fold_fold_fold(proof_type: String,
             witness_gen_filepath: String,
             output_file_path: String,
             input_folder_path: String,
-            hash_per_step: String
+            hash_per_step: String,
+            synthetic_folds: usize
         ) {
     type G1 = pasta_curves::pallas::Point;
     type G2 = pasta_curves::vesta::Point;
@@ -143,7 +144,17 @@ fn fold_fold_fold(proof_type: String,
             private_input.insert("pathElements".to_string(), json!(input_data.path_elements[i]));
             private_input.insert("pathIndices".to_string(), json!(input_data.path_indices[i]));
             private_inputs.push(private_input);
+        }
+        if synthetic_folds > iteration_count {
+            for _i in iteration_count..synthetic_folds {
+                let mut private_input = HashMap::new();
+                private_input.insert("data".to_string(), json!(input_data.leaves[0]));
+                private_input.insert("pathElements".to_string(), json!(input_data.path_elements[0]));
+                private_input.insert("pathIndices".to_string(), json!(input_data.path_indices[0]));
+                private_inputs.push(private_input);
             }
+            iteration_count = synthetic_folds;
+        }
     }
     else {
         // Err("given function is not implemented yet :)");
@@ -277,25 +288,6 @@ fn main() {
             .takes_value(true)
         )
         .arg(
-            Arg::with_name("proof")
-            .required(false)
-            .short("p")
-            .long("proof")
-            .value_name("PROOF")
-            .help("Type of the proof to be generated.")
-            .takes_value(true)
-            .possible_values(&["integrity", "authenticity"])
-        )
-        .arg(
-            Arg::with_name("hps")
-            .required(false)
-            .short("h")
-            .long("hps")
-            .value_name("HASH PER STEP")
-            .help("Number of hashes to be proven per step.")
-            .takes_value(true)
-        )
-        .arg(
             Arg::with_name("output")
             .required(true)
             .short("o")
@@ -332,15 +324,23 @@ fn main() {
             .takes_value(true)
             .possible_values(&["trim", "vector_commitment"])
         )
+        .arg(
+            Arg::with_name("synthetic")
+                .short("s")
+                .long("synthetic")
+                .value_name("FOLDS")
+                .help("input value for folds (synthetic benchmarks).")
+                .takes_value(true)
+                .default_value("0")
+        )
         .get_matches();
 
     let witness_gen_filepath = matches.value_of("witnessgenerator").unwrap();
     let circuit_filepath = matches.value_of("circuit").unwrap();
     let output_filepath = matches.value_of("output").unwrap();
     let input_filepath = matches.value_of("input").unwrap();
-    let proof_type = matches.value_of("proof").unwrap();
     let selected_function = matches.value_of("function").unwrap();
-    let hash_per_step = matches.value_of("hps").unwrap();
+    let synthetic_folds: usize = matches.value_of("synthetic").unwrap().parse().expect("synthetic must be an integer");
 
     println!(" ________________________________________________________");
     println!(" ____                          __     ___               ");
@@ -349,23 +349,23 @@ fn main() {
     println!("|  __/| | | (_) \\ V /  __/ | | | \\ V / | |  __/\\ V  V / ");
     println!("|_|   |_|  \\___/ \\_/ \\___|_| |_|  \\_/  |_|\\___| \\_/\\_/  ");
     println!(" ________________________________________________________");
-    println!("| Proof Type: {}", proof_type);
     println!("| Input file: {}", input_filepath);
     println!("| Ouput file: {}", output_filepath);
     println!("| Selected function: {}", selected_function);
-    println!("| Hash per step: {}", hash_per_step);
     println!("| Circuit file: {}", circuit_filepath);
     println!("| Witness generator: {}", witness_gen_filepath);
+    println!("| Synthetic Folds: {}", synthetic_folds);
     println!(" ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾");
 
 
-    fold_fold_fold(proof_type.to_string(),
+    fold_fold_fold("integrity".to_string(),
                 selected_function.to_string().clone(),
                 circuit_filepath.to_string().clone(),
                 witness_gen_filepath.to_string(),
                 output_filepath.to_string(),
                 input_filepath.to_string(),
-                hash_per_step.to_string()
+                "does not matter".to_string(),
+                synthetic_folds
             );
 
 }

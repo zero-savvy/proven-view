@@ -1,0 +1,83 @@
+{
+    "levels": 15,
+    "path_elements_start": [
+        "0x1678d6401ddb171e51a62e2bc22ac6a74d46109faad6141b558f6a98c3d62d28",
+        "0x26c670ba1f1853b12070b3605fcc52f27b37b052a91eff026d25e241b2942b55",
+        "0x29c8949b2e4b706ffcdbe0f31ee6ff5779103e97aaf28ce6919f849f1b0ad903",
+        "0xc0584d671b66eca60b65f89aaad647d04140964f0edcdbddb5f9bea1dc5e743",
+        "0x34b02413a1f5fe35edfa07ac0862d37a2468696d8d577c7b83d0e47c94584ae1",
+        "0x33dcc2c8e0aaf45b034b93f9278d53b048182d31b29c1bccf1ef20ad66bc141a",
+        "0x15cb23beac257b89f6e36bfbadbb251fd4e0c82cc0923dd9e61bc90e132ee53d",
+        "0x11dde9693722f39f22649481904b9a20e91e50b433c718f200f7e95765766eee",
+        "0x16f9f2336428851afb244f93c2b46288faccac8f3df0373cd7ac8b8d053fd216",
+        "0x11f051209c66ee9a4f091df86b6c7c68b3741f6dc1d2b1349b9ebd289d03acab",
+        "0x348af85fff8020fd74d972d56529fa06c1275d00171dd80a375f71378c508c1d",
+        "0x2d868ddcd5adb7573769020f8118ed71cf3874e1ee3e65feb60a8e74ca1caff2",
+        "0x4db59fd19d1bb55b07387bf6eaaa7e9603b61f274ad76a78d7ac27ec8d111ec",
+        "0x156695645c88cdcbac817ed85ea3195309d7605c1d46ab76186975c867348a3b",
+        "0x531620a458db9b174dbef01a5612e62d3f7bb7eef9831ab04ede9b43d74d968"
+    ],
+    "path_indices_start": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    "leaf_start": [
+        9232194602041704396,
+        7841733714819603434,
+        12357470308936087094,
+        1712281603471172494
+    ],
+    "path_elements_end": [
+        "0x62e6be78221731e24e96dc703264ac35e9086f9b274c3121a6a32d287c2a7fb",
+        "0x992a0f0204e1cda3926e65a532bf9c61a375eb3f015bfe0bc34cfc9b77894d0",
+        "0x3ba29e3fbeabe3a35c4e83d5593c35b07030bb39b47388f6943922e9e8b717c5",
+        "0x2038fd2d2b9fbc5395b67fb232e0ee548bbdbf44dca371bb90247b48ce53b20c",
+        "0x15f3f4c7273834916e5319f40b78686e3c59018a42b03fcc1f6669642d623366",
+        "0x34111b4e2a28a36fb179df6ca810bfe95c62c4937a0fd1317bdf0638dfd0446",
+        "0x1c59d98938905aa33a73f41e8f379eed0f8c3ad9f15c209a77eb2e6f4fae428f",
+        "0x11dde9693722f39f22649481904b9a20e91e50b433c718f200f7e95765766eee",
+        "0x16f9f2336428851afb244f93c2b46288faccac8f3df0373cd7ac8b8d053fd216",
+        "0x11f051209c66ee9a4f091df86b6c7c68b3741f6dc1d2b1349b9ebd289d03acab",
+        "0x348af85fff8020fd74d972d56529fa06c1275d00171dd80a375f71378c508c1d",
+        "0x2d868ddcd5adb7573769020f8118ed71cf3874e1ee3e65feb60a8e74ca1caff2",
+        "0x4db59fd19d1bb55b07387bf6eaaa7e9603b61f274ad76a78d7ac27ec8d111ec",
+        "0x156695645c88cdcbac817ed85ea3195309d7605c1d46ab76186975c867348a3b",
+        "0x531620a458db9b174dbef01a5612e62d3f7bb7eef9831ab04ede9b43d74d968"
+    ],
+    "path_indices_end": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    "leaf_end": [
+        8908748587851567652,
+        14749998654470493865,
+        16652594837938498724,
+        1014286408573297204
+    ]
+}
