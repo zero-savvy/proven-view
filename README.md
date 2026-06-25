@@ -42,7 +42,7 @@ Once you have installed dependencies, you can proceed with setting up and runnin
 To obtain the latest version of provenview, head to directory of your choice and install provenview using the following command:
 
   - Clone: `git clone https://-----anon----.git`
-  - Head to the `nova` directory: `cd asiacss-paper-22BC/nova/`
+  - Head to the `nova` directory: `cd vc-delegate-0E1C/nova/`
   - build and install `provenview` using `cargo`:
     - `cargo build`
     - `cargo install --path .`
