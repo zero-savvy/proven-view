@@ -136,25 +136,27 @@ fn fold_fold_fold(proof_type: String,
         start_public_input.push(F::<G1>::from_raw(input_data.root));
         start_public_input.push(F::<G1>::from(0));
 
+        
         // start_public_input.push(F::<G1>::from(input_data.info));  // x|y|index
-        println!("iteration_count: {:?}", iteration_count);
-        for i in 0..iteration_count {
-            let mut private_input = HashMap::new();
-            private_input.insert("data".to_string(), json!(input_data.leaves[i]));
-            private_input.insert("pathElements".to_string(), json!(input_data.path_elements[i]));
-            private_input.insert("pathIndices".to_string(), json!(input_data.path_indices[i]));
-            private_inputs.push(private_input);
-        }
-        if synthetic_folds > iteration_count {
-            for _i in iteration_count..synthetic_folds {
+        if synthetic_folds > 0 {
+            iteration_count = synthetic_folds;
+            for _i in 0..synthetic_folds {
                 let mut private_input = HashMap::new();
                 private_input.insert("data".to_string(), json!(input_data.leaves[0]));
                 private_input.insert("pathElements".to_string(), json!(input_data.path_elements[0]));
                 private_input.insert("pathIndices".to_string(), json!(input_data.path_indices[0]));
                 private_inputs.push(private_input);
             }
-            iteration_count = synthetic_folds;
+        } else {
+            for i in 0..iteration_count {
+                let mut private_input = HashMap::new();
+                private_input.insert("data".to_string(), json!(input_data.leaves[i]));
+                private_input.insert("pathElements".to_string(), json!(input_data.path_elements[i]));
+                private_input.insert("pathIndices".to_string(), json!(input_data.path_indices[i]));
+                private_inputs.push(private_input);
+            }
         }
+        println!("iteration_count: {:?}", iteration_count);
     }
     else {
         // Err("given function is not implemented yet :)");

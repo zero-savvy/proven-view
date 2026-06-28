@@ -86,7 +86,7 @@ def main():
     #     data = json.load(f)
 
     count = 1024
-    random_numbers = generate_random_numbers(count)
+    random_numbers = generate_random_numbers(count, 20)
     
     # Save to JSON file
     save_to_json(random_numbers)

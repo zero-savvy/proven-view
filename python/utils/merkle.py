@@ -1,6 +1,6 @@
 import json
 import math
-from .poseidon import poseidon
+from poseidon import poseidon
 
 
 def pad_to_power_of_two(data):
@@ -33,8 +33,10 @@ def build_merkle_tree(data):
 
 def main():
     # Read the input list of numbers from the JSON file
-    with open('outputs.json', 'r') as f:
-        data = json.load(f)
+    # with open('outputs.json', 'r') as f:
+    #     data = json.load(f)
+
+    data = ["0xc103ef29cc04c52ccdf3de64e8b6d20d24fee5449523161e73cdd375744493"] * (2 ** 10)
     
     # Get the Merkle root
     tree = build_merkle_tree(data)

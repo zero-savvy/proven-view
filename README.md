@@ -8,7 +8,7 @@
  - **I-a) Node JS**:
    - `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash`
    - `source ~/.bashrc`
-   - `nvm install v16.20.0`
+   - `nvm install lts`
 > [!TIP]
 > in rare cases (miss-configured Linux distros), if you got an error stating that version "v16.20.0" was not found; following command might help:
 > `export NVM_NODEJS_ORG_MIRROR=http://nodejs.org/dist`
@@ -19,7 +19,8 @@
     - `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y`
     - `rustup default stable`
   - **I-d) build-essentials:**
-    - `sudo apt install gcc build-essential nlohmann-json3-dev libgmp3-dev nasm`
+    - Debian (Ubuntu,...): `sudo apt install gcc build-essential nlohmann-json3-dev libgmp3-dev nasm`
+    - Fedora: `sudo dnf install make automake gcc gcc-c++ kernel-devel json-devel nasm gmp-devel`
   - **I-e) Circom**:
     - `git clone https://github.com/iden3/circom.git`
     - ` cd circom`
