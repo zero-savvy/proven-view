@@ -21,7 +21,7 @@ provenview --circuit circuits/merkle_fold_step_128.r1cs --function vector_commit
 echo -e "\033[1;34m==================================================\033[0m"
 echo -e "\033[1;34mBnechmarking a Tree with 2**20 Leaves!\033[0m"
 echo -e "\033[1;34mReproducing Table 6: LAST row results \033[0m"
-echo -e "\033[1;34mExpected time: approx. 30~40min on a Midrange Laptop \033[0m"
+echo -e "\033[1;34mExpected time: approx. 30~40 min on a Midrange Laptop \033[0m"
 echo -e "\033[1;34m==================================================\033[0m"
 
 provenview --circuit circuits/merkle_fold_step_256.r1cs --function vector_commitment --input samples/256-subtree/ --output folding-proof-file.json --witnessgenerator circuits/merkle_fold_step_256_cpp/merkle_fold_step_256 --synthetic 4096
