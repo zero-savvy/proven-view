@@ -113,3 +113,23 @@ which will be like this:
 provenview --circuit ../circuits/merkle_fold_step.r1cs --function vector_commitment --input output/ --output folding-proof-file.json --witnessgenerator ../circuits/merkle_fold_step_cpp/merkle_fold_step
 ```
 
+Use the built-in `provenview --help` command for detailes on flag/params. The expected output is as follows:
+```
+USAGE:
+    provenview [OPTIONS] --circuit <R1CS FILE> --function <FUNCTION> --input <FILE> --output <FILE> --witnessgenerator <BINARY/WASM FILE>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -c, --circuit <R1CS FILE>                    The R1CS file of the compiled Circom circuit.
+    -f, --function <FUNCTION>                    The transformation function. [possible values: trim, vector_commitment]
+    -i, --input <FILE>
+            The JSON file containing the original and the transformed video data to verify.
+
+    -o, --output <FILE>                          This file will contain the final Proof to be verified by others.
+    -s, --synthetic <FOLDS>                      input value for folds (synthetic benchmarks). [default: 0]
+    -w, --witnessgenerator <BINARY/WASM FILE>    Witness generator file of the circuit.
+
+```
