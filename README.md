@@ -30,14 +30,18 @@
   - **I-f) Time**:
     - `sudo apt install time`
 
+### II-Minimum Hardware Requirements
+Any Linux-based system with a 8GB+ RAM could be in theory capable of running these benchmarks. However, we suggest a midrange laptop with relatively recent CPU for better results. 
 > [!NOTE]
-> We have successfully executed benchmarks on multiple systems and expect there should be minimal sensitivity regarding spesific versions in the dependencies, however, we note one of our recent system configurations for the record:
+> __Software Requirements__:
+> 
+> We have successfully executed benchmarks on multiple systems and expect there should be minimal sensitivity regarding spesific versions in the dependencies, however, we report one of our recent configs for the record:
 > - Ubuntu @ 22.04
 > - Circom @ 2.2.1
 > - snarkjs @ 0.7.5
 > - rustc @ 1.86.0-nightly
 
-### II-Installing 
+### III-Installation
 
 Once you have installed dependencies, you can proceed with setting up and running provenview. 
 To obtain the latest version of provenview, head to directory of your choice and install provenview using the following command:
@@ -49,7 +53,7 @@ To obtain the latest version of provenview, head to directory of your choice and
     - `cargo install --path .`
     - verify installation of `provenview`: `provenview --help`
 
-#### II-b) Building Circuits
+#### Building Circuits
 
 go to the circuits directory:
 
