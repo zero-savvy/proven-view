@@ -8,7 +8,7 @@
  - **I-a) Node JS**:
    - `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash`
    - `source ~/.bashrc`
-   - `nvm install lts`
+   - `nvm install --lts`
 > [!TIP]
 > in rare cases (miss-configured Linux distros), if you got an error stating that version "v16.20.0" was not found; following command might help:
 > `export NVM_NODEJS_ORG_MIRROR=http://nodejs.org/dist`
