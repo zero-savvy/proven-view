@@ -31,7 +31,7 @@
     - `sudo apt install time`
 
 ### II-Minimum Hardware Requirements
-Any Linux-based system with a 8GB+ RAM could be in theory capable of running these benchmarks. However, we suggest a midrange laptop with relatively recent CPU for better results. 
+Any Linux-based system with a 4GB+ RAM could be in theory capable of running these benchmarks. However, we suggest a midrange laptop with relatively recent CPU for better results. 
 > [!NOTE]
 > __Software Requirements__:
 > 
@@ -41,7 +41,7 @@ Any Linux-based system with a 8GB+ RAM could be in theory capable of running the
 > - snarkjs @ 0.7.5
 > - rustc @ 1.86.0-nightly
 
-### III-Installation
+### III-Building & Installing ProvenView
 
 Once you have installed dependencies, you can proceed with setting up and running provenview. 
 To obtain the latest version of provenview, head to directory of your choice and install provenview using the following command:
