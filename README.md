@@ -31,7 +31,8 @@
     - `sudo apt install time`
 
 ### II-Minimum Hardware Requirements
-Any Linux-based system with a 4GB+ RAM could be in theory capable of running these benchmarks. However, we suggest a midrange laptop with relatively recent CPU for better results. 
+Any Linux-based system with a 8GB+ RAM and relatively generous SWAP size (at least 16GB) could be in theory capable of running these benchmarks. However, we suggest a midrange laptop with relatively recent CPU for better results. 
+
 > [!NOTE]
 > __Software Requirements__:
 > 
