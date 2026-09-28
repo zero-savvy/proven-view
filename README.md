@@ -77,7 +77,7 @@ simply Go to the main directory of provenview repo and run the provided script:
 ./benchmark.sh 
 ```
 
-This script reproduces the benchmarks for proving the construction of full VC in ZK (Table 6). 
+This script reproduces the benchmarks for proving the construction of full VC in ZK (Table 6) with expected times and detailed report breakdowns. 
 
 
 ## How to Use (Detailed)
